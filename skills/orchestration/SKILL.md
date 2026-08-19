@@ -66,7 +66,14 @@ what was actually handed over, not a fixed ritual applied uniformly:
 - Stakes: how expensive or reversible is a wrong guess here — this doubles as the routing signal;
   planning and lane selection aren't actually separate steps
 
-Batch related questions together in one pass rather than a one-at-a-time back-and-forth.
+**Ask one question at a time, not a batch.** Decided 2026-08-19, reversing the earlier 2026-08-12
+call — the user asks about the specific decision at hand so they can review and answer quickly, with
+room to go deeper if they want to; a batch of questions works against that. For each question:
+explain the decision in plain terms (not jargon), state a recommendation and why, name the strongest
+case against it, and give a short tradeoffs list — then let the user answer before asking the next
+one. This mirrors a pattern independently validated in a related tool (Son-of-Anton's `grill-me`
+skill) and was separately confirmed as the user's own stated preference the same day — see
+`lessons.md`'s 2026-08-19 entries in the notes repo for both threads.
 
 **Stopping condition:** the same bar the spec contract states below — keep asking until the
 architect could write a complete five-part spec without guessing at anything material. "A spec you
