@@ -93,9 +93,10 @@ without running it, the next session opens with a reminder — a nudge, not a gu
 nothing can intercept `/clear` before it happens. `/wrap-up` is the one manual habit this plugin
 asks of you.
 
-**Testing mode** (opt-in, off by default): create `~/.claude/orchestrator-testing.md` containing
-one line — the absolute path to a markdown file where you want plugin friction/notes logged as you
-use it. Delete the file to turn it off.
+**Testing mode** (opt-in, off by default): `/claude-orchestrator:testing-mode on`, `off`, or
+`status`. This just manages a one-line file at `~/.claude/orchestrator-testing.md` — the absolute
+path to a markdown file where you want plugin friction/notes logged as you use it — so you can also
+create or delete that file by hand if you prefer.
 
 ## Commitment boundaries and the final review
 
