@@ -24,23 +24,15 @@ claude plugin marketplace add czclaxton/Claude-Orchestrator
 claude plugin install claude-orchestrator@claude-orchestrator
 ```
 
-Set up short command names — copy these two files in:
+Set up short command names:
 
-`~/.claude/commands/wrap-up.md`:
 ```
----
-description: alias
----
-Run the /claude-orchestrator:wrap-up command now.
+claude --init-only
 ```
 
-`~/.claude/commands/catch-up.md`:
-```
----
-description: alias
----
-Run the /claude-orchestrator:catch-up command now.
-```
+This creates two small relay files in `~/.claude/commands/` so `/wrap-up` and `/catch-up` work
+directly instead of needing the full `/claude-orchestrator:` prefix. Safe to re-run — it never
+overwrites a file you've customized yourself.
 
 Updating an existing installation to the latest release:
 
