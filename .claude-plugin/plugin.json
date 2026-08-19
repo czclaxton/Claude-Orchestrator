@@ -1,6 +1,6 @@
 {
   "name": "claude-orchestrator",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Run your session as a full-time architect: it writes specs and verdicts and routes implementation across a three-rung Claude model ladder — Sonnet for routine work, Opus for judgment-heavy tasks, Fable for high-stakes one-offs — with a mandatory advisor review before anything ships.",
   "author": {
     "name": "Connor Claxton",

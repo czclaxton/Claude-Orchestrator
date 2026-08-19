@@ -72,6 +72,30 @@ and get an advisor review before reporting any deliverable done.
 
 Even the architect gets a second opinion. The `advisor` agent is a read-only skeptic — consulted before architecture decisions, migrations, API designs, whenever a problem has resisted two attempts, and **always once at the end of a deliverable**, where it reads the accumulated diff with fresh eyes, against the stated goal rather than the conversation, and returns ship / fix-first / rethink. It never implements. One honest limit: every lane here is a Claude model, so this is a fresh-context check, not an independent-model one — it catches assumptions the session accumulated, not blind spots the whole family shares.
 
+## Session hygiene: /reset and /resume
+
+Two commands for the start and end of a working session (registered as
+`claude-orchestrator:reset` and `claude-orchestrator:resume` — type `/reset` / `/resume` and
+Claude Code will resolve the plugin-qualified name for you as long as nothing else claims it):
+
+- **`/reset`** — run this right before you `/clear`. It writes (overwrites) a local
+  `RESUME-PROMPT.md` at the project root so a fresh session can pick up where you left off, and — if
+  testing mode is on (see below) — sweeps any friction/findings about the plugin itself into your
+  private notes. It ends by telling you to run `/clear`.
+- **`/resume`** — a deliberate, deeper "catch me up" for the current project: reads
+  `RESUME-PROMPT.md` if present, checks real git state, and reconciles the two before summarizing
+  what's open and what's next.
+
+A `SessionStart` hook backs these up automatically: it always checks whether you cleared without
+running `/reset` first, and if so, flags it at the top of your next session — a nudge, not a hard
+guarantee. `/reset` is still the one habit this plugin actually asks of you; there's no way to force
+it, by design (nothing can intercept `/clear` before it happens).
+
+**Turning on testing mode** (opt-in, personal — captures plugin friction into
+`Claude-Orchestrator-Notes/lessons.md` as you dogfood the plugin itself): create
+`~/.claude/orchestrator-testing.md` with a single line — the absolute path to your `lessons.md`.
+Delete the file to turn it off.
+
 ## Running on Pro
 
 The routing table above is built for a Max plan, where Fable is included as part of the plan (usable for up to 50% of your weekly limit) and comfortably absorbs both `critical-implementer` escalations and the mandatory end-of-deliverable review in the same session. **On Pro, Fable isn't included in the subscription at all — it runs on pay-as-you-go usage credits, billed on top of your $20.** Since two of the four lanes in this pattern are Fable, and the `advisor` review is mandatory on every single deliverable, that's a real per-task charge, not just a tighter limit. Two adjustments make the same plugin work well on Pro without incurring it:
