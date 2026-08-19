@@ -24,10 +24,10 @@ claude plugin marketplace add czclaxton/Claude-Orchestrator
 claude plugin install claude-orchestrator@claude-orchestrator
 ```
 
-Set up short command names:
+Then, in a Claude Code session, set up short command names (one-time):
 
 ```
-claude --init-only
+/claude-orchestrator:setup
 ```
 
 This creates two small relay files in `~/.claude/commands/` so `/wrap-up` and `/catch-up` work
@@ -79,6 +79,8 @@ and get an advisor review before reporting any deliverable done.
 ```
 
 ## Starting and ending a session: /wrap-up and /catch-up
+
+(These short names come from the one-time `/claude-orchestrator:setup` step in Install, above.)
 
 - **`/wrap-up`** — run before `/clear`. Writes a local `RESUME-PROMPT.md` so a fresh session can
   pick up where you left off, sweeps plugin friction/findings into your notes if testing mode is
