@@ -24,6 +24,24 @@ claude plugin marketplace add czclaxton/Claude-Orchestrator
 claude plugin install claude-orchestrator@claude-orchestrator
 ```
 
+Set up short command names — copy these two files in:
+
+`~/.claude/commands/wrap-up.md`:
+```
+---
+description: alias
+---
+Run the /claude-orchestrator:wrap-up command now.
+```
+
+`~/.claude/commands/catch-up.md`:
+```
+---
+description: alias
+---
+Run the /claude-orchestrator:catch-up command now.
+```
+
 Updating an existing installation to the latest release:
 
 ```
@@ -70,21 +88,11 @@ and get an advisor review before reporting any deliverable done.
 
 ## Starting and ending a session: /wrap-up and /catch-up
 
-- **`/claude-orchestrator:wrap-up`** — run before `/clear`. Writes a local `RESUME-PROMPT.md` so a
-  fresh session can pick up where you left off, sweeps plugin friction/findings into your notes if
-  testing mode is on (below), and ends by telling you to `/clear`.
-- **`/claude-orchestrator:catch-up`** — a deliberate "catch me up" for the current project: reads
-  `RESUME-PROMPT.md`, checks real git state, and summarizes what's open and what's next.
-
-Plugin commands need the full `claude-orchestrator:` prefix — there's no bare-name shortcut. For a
-shorter personal alias, add a one-line command at `~/.claude/commands/wrap-up.md`:
-
-```
----
-description: alias
----
-Run the /claude-orchestrator:wrap-up command now.
-```
+- **`/wrap-up`** — run before `/clear`. Writes a local `RESUME-PROMPT.md` so a fresh session can
+  pick up where you left off, sweeps plugin friction/findings into your notes if testing mode is
+  on (below), and ends by telling you to `/clear`.
+- **`/catch-up`** — a deliberate "catch me up" for the current project: reads `RESUME-PROMPT.md`,
+  checks real git state, and summarizes what's open and what's next.
 
 A `SessionStart` hook backs `/wrap-up` up automatically: if the previous session was cleared
 without running it, the next session opens with a reminder — a nudge, not a guarantee, since
