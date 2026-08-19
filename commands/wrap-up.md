@@ -9,7 +9,9 @@ Prepare this session to be cleared. Do the following, in order.
 Check whether `~/.claude/orchestrator-testing.md` exists.
 
 **If it exists:** its first non-empty line is the absolute path to `lessons.md` in the private
-Claude-Orchestrator-Notes repo. Review this session for friction or successes specifically about
+Claude-Orchestrator-Notes repo. **Before touching that file, check `git status` there and note two
+things: is the working tree clean, and is it on its default branch?** Remember this — it decides
+how step 2 proceeds. Review this session for friction or successes specifically about
 the **Claude Orchestrator plugin itself** (routing decisions, agent behavior, spec quality —
 not the substance of whatever project you were actually working in). Apply the same promotion bar
 already used in that file: only log something that recurred, or was notable/severe enough to
@@ -26,18 +28,37 @@ existing format. Two rules, non-negotiable:
 
 **If it doesn't exist:** skip this step entirely. Testing mode is off; there's nothing to sweep.
 
-## 2. Commit and push the lessons.md update, if you changed it
+## 2. Open a PR for the lessons.md update, if you changed it
 
 Only do this if step 1 actually appended a new entry — skip entirely if testing mode was off or
 nothing cleared the promotion bar.
 
-In the Claude-Orchestrator-Notes repo (not this one): check `git status` there first. Stage and
-commit **only `lessons.md`** — never `git add -A` or sweep in other uncommitted work that might be
-sitting in that repo for unrelated reasons. Write a plain commit message describing what was
-logged (the entry's own heading is usually enough). Then push.
+**If step 1 found the repo already dirty, or not on its default branch, before you touched
+anything:** don't create a branch or open a PR — branching from a dirty tree risks sweeping
+someone else's unfinished edits into the commit, or failing outright. Leave your new entry as an
+uncommitted change in the working tree exactly as step 1 left it, and tell the user plainly that
+the PR step was skipped because the repo already had other changes (or was on a different branch)
+— they'll need to sort out committing it themselves alongside whatever else is there.
 
-If the commit or push fails for any reason, report it plainly and move on — don't let it block the
-rest of this command.
+**Otherwise** (repo was clean and on its default branch): in the Claude-Orchestrator-Notes repo
+(not this one), note its current branch first so you can switch back to it at the end. Then:
+
+1. Create a new branch off its default branch, named
+   `lessons/<YYYYMMDD-HHMMSS>-<short-kebab-slug-from-the-entry-heading>` (the timestamp keeps it
+   unique even if two entries land the same day).
+2. Stage and commit **only `lessons.md`** — never `git add -A` or sweep in other uncommitted work
+   that might be sitting in that repo for unrelated reasons. Write a plain commit message
+   describing what was logged (the entry's own heading is usually enough).
+3. Push the branch and open a PR against the repo's default branch (`gh pr create`). Keep the PR
+   body short — the heading plus one sentence is enough; the diff already has the full entry.
+4. Switch back to whatever branch the repo was on before step 1, so the working tree isn't left on
+   the new branch.
+
+**Do not merge this PR now.** It's reviewed later, in a batch, at the next plugin version bump —
+see `CONTRIBUTING.md`'s version-bump checklist.
+
+If branch creation, commit, push, or PR creation fails for any reason, report it plainly and move
+on — don't let it block the rest of this command.
 
 ## 3. Write a resume note for this project
 

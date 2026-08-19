@@ -44,3 +44,18 @@ claude plugin update claude-orchestrator@claude-orchestrator
 
 Verify the fix actually landed in the cache (`~/.claude/plugins/cache/claude-orchestrator/claude-orchestrator/<version>/...`)
 before trusting it's live — the update command reporting success doesn't confirm content changed.
+
+## 4. Before you bump: review the open lessons.md PRs
+
+When testing mode is on, `/claude-orchestrator:wrap-up` opens a small PR in Claude-Orchestrator-Notes
+for each finding it logs, rather than pushing straight to that repo's default branch — deliberately
+not gated on Connor's approval (it's a private, single-reader file, and gating every entry behind a
+merge click would just reintroduce the friction that made findings get skipped before). Instead,
+each plugin version bump is the trigger to go review whatever's piled up:
+
+- Read each open PR's diff. Decide if it's just a logged observation (merge as-is, no other action)
+  or if it points at something actionable — a real doc that should change (this file, the README, an
+  agent definition), a bug worth fixing, a design assumption worth revisiting. Not every entry
+  produces a follow-up; most won't.
+- Merge (or close, if an entry turns out to be a duplicate or a dead end) each PR you've reviewed.
+  Don't let them pile up past this checkpoint.
