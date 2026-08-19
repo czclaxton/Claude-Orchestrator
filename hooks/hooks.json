@@ -1,0 +1,26 @@
+{
+  "description": "Claude Orchestrator session hooks: injects testing-mode context on every session start, and flags a skipped /reset before the previous clear.",
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"${CLAUDE_PLUGIN_ROOT}/hooks/session-start.js\"",
+            "timeout": 10
+          }
+        ]
+      },
+      {
+        "matcher": "clear",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"${CLAUDE_PLUGIN_ROOT}/hooks/session-start.js\" clear",
+            "timeout": 10
+          }
+        ]
+      }
+    ]
+  }
+}
