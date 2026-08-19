@@ -39,8 +39,9 @@ Then start your session as the architect:
 
 ## Requirements
 
-- **Claude Code** with a subscription that includes Fable (Pro, Max, Team, or Enterprise — all current consumer plans qualify for access; see "Running on Pro" below for usage-limit tradeoffs).
+- **Claude Code** with a subscription that includes Fable (Pro, Max, Team, or Enterprise — all current consumer plans qualify for API access; see "Running on Pro" below for the cost tradeoff, which is real, not just a usage-limit nuance).
 - Heads-up: if a pinned Claude model isn't available on your account, Claude Code silently falls back to your session model — the pattern degrades quietly rather than erroring. If results feel unremarkable, check your plan and the pins in `agents/*.md`.
+- Heads-up, separately: a global `"model": "opusplan"` setting in `~/.claude/settings.json` (Opus while planning, Sonnet during execution) silently demotes the architect to Sonnet the moment it starts delegating — the exact opposite of what this pattern assumes. Use a plain `"model": "opus"` instead if you're running this plugin.
 
 Model resolution order in Claude Code: `CLAUDE_CODE_SUBAGENT_MODEL` env var → per-invocation `model` parameter → agent frontmatter → session model.
 
@@ -73,7 +74,7 @@ Even the architect gets a second opinion. The `advisor` agent is a read-only ske
 
 ## Running on Pro
 
-The routing table above is built for a Max plan, where Fable's usage limits comfortably absorb both `critical-implementer` escalations and the mandatory end-of-deliverable review in the same session. On Pro, Fable's limits are tighter. Two adjustments make the same plugin work well there:
+The routing table above is built for a Max plan, where Fable is included as part of the plan (usable for up to 50% of your weekly limit) and comfortably absorbs both `critical-implementer` escalations and the mandatory end-of-deliverable review in the same session. **On Pro, Fable isn't included in the subscription at all — it runs on pay-as-you-go usage credits, billed on top of your $20.** Since two of the four lanes in this pattern are Fable, and the `advisor` review is mandatory on every single deliverable, that's a real per-task charge, not just a tighter limit. Two adjustments make the same plugin work well on Pro without incurring it:
 
 1. Treat `complex-implementer` (Opus) as the effective top implementation rung — reserve `critical-implementer` for the rare task that's genuinely both judgment-heavy and high-stakes.
 2. In `agents/advisor.md`, change `model: fable` to `model: opus` so the mandatory final review doesn't compete with `critical-implementer` for the same limits.
