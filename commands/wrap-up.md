@@ -26,7 +26,20 @@ existing format. Two rules, non-negotiable:
 
 **If it doesn't exist:** skip this step entirely. Testing mode is off; there's nothing to sweep.
 
-## 2. Write a resume note for this project
+## 2. Commit and push the lessons.md update, if you changed it
+
+Only do this if step 1 actually appended a new entry — skip entirely if testing mode was off or
+nothing cleared the promotion bar.
+
+In the Claude-Orchestrator-Notes repo (not this one): check `git status` there first. Stage and
+commit **only `lessons.md`** — never `git add -A` or sweep in other uncommitted work that might be
+sitting in that repo for unrelated reasons. Write a plain commit message describing what was
+logged (the entry's own heading is usually enough). Then push.
+
+If the commit or push fails for any reason, report it plainly and move on — don't let it block the
+rest of this command.
+
+## 3. Write a resume note for this project
 
 Write (overwrite, don't append) `RESUME-PROMPT.md` at the root of the current project — a process
 artifact, not a deliverable. If this project is a git repository, make sure the file is excluded
@@ -41,13 +54,13 @@ one left off. Cover, briefly:
 
 Keep it tight — this is a working note for the next session, not a report for a reader.
 
-## 3. Mark that findings were swept
+## 4. Mark that findings were swept
 
 Write `~/.claude/orchestrator-wrapup-sentinel.json` with a timestamp, e.g.
 `{"wrapped_up_at": "<ISO-8601 timestamp>"}`. This is what lets the `SessionStart` hook confirm
 `/wrap-up` actually ran before the next `/clear`, instead of assuming it did.
 
-## 4. Tell the user to clear
+## 5. Tell the user to clear
 
 End your reply with exactly this, on its own line, so it's impossible to miss:
 
