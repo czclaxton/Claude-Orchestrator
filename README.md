@@ -68,33 +68,36 @@ read-only agents, verify evidence before accepting any lane's report,
 and get an advisor review before reporting any deliverable done.
 ```
 
+## Starting and ending a session: /wrap-up and /catch-up
+
+Two commands for the two moments that bookend a working session — named to avoid Claude Code's own
+reserved words (`/reset` and `/resume` both collide with built-in behavior and silently fail to
+reach a plugin command, so don't rename these back):
+
+- **`/wrap-up`** — run this right before you `/clear`. It overwrites a local `RESUME-PROMPT.md` at
+  the project root so a fresh session can pick up where you left off, and — only if testing mode is
+  on (see below) — sweeps any friction/findings about the plugin itself into your personal notes
+  file. It ends with an explicit "run `/clear` now."
+- **`/catch-up`** — a deliberate, deeper "catch me up" for the current project: reads
+  `RESUME-PROMPT.md` if present, checks real git state, and reconciles the two before summarizing
+  what's open and what's next. Use it when you want more than the automatic reminder below gives
+  you.
+
+A `SessionStart` hook backs `/wrap-up` up automatically: every session start checks whether the
+previous one was cleared without running `/wrap-up` first, and if so, flags it right away — a
+nudge, not a hard guarantee. This is a deliberate, known tradeoff: **nothing can intercept `/clear`
+before it happens** (verified against the current Claude Code hook system, not assumed), so
+`/wrap-up` is the one manual habit this plugin actually asks of you. There's no way to make it
+fully automatic.
+
+**Turning on testing mode** (opt-in, off by default): create `~/.claude/orchestrator-testing.md`
+containing one line — the absolute path to any markdown file where you want plugin friction/notes
+appended as you use it (a personal log, a project journal, whatever you already use for this).
+Delete the file to turn it off.
+
 ## Commitment boundaries and the final review
 
 Even the architect gets a second opinion. The `advisor` agent is a read-only skeptic — consulted before architecture decisions, migrations, API designs, whenever a problem has resisted two attempts, and **always once at the end of a deliverable**, where it reads the accumulated diff with fresh eyes, against the stated goal rather than the conversation, and returns ship / fix-first / rethink. It never implements. One honest limit: every lane here is a Claude model, so this is a fresh-context check, not an independent-model one — it catches assumptions the session accumulated, not blind spots the whole family shares.
-
-## Session hygiene: /reset and /resume
-
-Two commands for the start and end of a working session (registered as
-`claude-orchestrator:reset` and `claude-orchestrator:resume` — type `/reset` / `/resume` and
-Claude Code will resolve the plugin-qualified name for you as long as nothing else claims it):
-
-- **`/reset`** — run this right before you `/clear`. It writes (overwrites) a local
-  `RESUME-PROMPT.md` at the project root so a fresh session can pick up where you left off, and — if
-  testing mode is on (see below) — sweeps any friction/findings about the plugin itself into your
-  private notes. It ends by telling you to run `/clear`.
-- **`/resume`** — a deliberate, deeper "catch me up" for the current project: reads
-  `RESUME-PROMPT.md` if present, checks real git state, and reconciles the two before summarizing
-  what's open and what's next.
-
-A `SessionStart` hook backs these up automatically: it always checks whether you cleared without
-running `/reset` first, and if so, flags it at the top of your next session — a nudge, not a hard
-guarantee. `/reset` is still the one habit this plugin actually asks of you; there's no way to force
-it, by design (nothing can intercept `/clear` before it happens).
-
-**Turning on testing mode** (opt-in, personal — captures plugin friction into
-`Claude-Orchestrator-Notes/lessons.md` as you dogfood the plugin itself): create
-`~/.claude/orchestrator-testing.md` with a single line — the absolute path to your `lessons.md`.
-Delete the file to turn it off.
 
 ## Running on Pro
 

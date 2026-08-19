@@ -7,7 +7,7 @@ const path = require('path');
 
 const CLAUDE_DIR = path.join(os.homedir(), '.claude');
 const TESTING_CONFIG = path.join(CLAUDE_DIR, 'orchestrator-testing.md');
-const RESET_SENTINEL = path.join(CLAUDE_DIR, 'orchestrator-reset-sentinel.json');
+const WRAPUP_SENTINEL = path.join(CLAUDE_DIR, 'orchestrator-wrapup-sentinel.json');
 const DIAG_LOG = path.join(CLAUDE_DIR, 'orchestrator-hook-diag.log');
 
 function readStdin() {
@@ -39,21 +39,21 @@ function main() {
     contextParts.push(
       'Claude Orchestrator testing mode is active (~/.claude/orchestrator-testing.md exists). ' +
       'Capture friction/findings about the orchestrator plugin itself during this session, described ' +
-      'project-agnostically, and sweep them via /reset before your next /clear.'
+      'project-agnostically, and sweep them via /wrap-up before your next /clear.'
     );
   }
 
   if (argSubtype === 'clear') {
-    if (fs.existsSync(RESET_SENTINEL)) {
+    if (fs.existsSync(WRAPUP_SENTINEL)) {
       try {
-        fs.unlinkSync(RESET_SENTINEL);
+        fs.unlinkSync(WRAPUP_SENTINEL);
       } catch {
         // Non-fatal: worst case the sentinel is consumed on a later run instead.
       }
     } else {
       contextParts.push(
-        'Heads up: the previous session was cleared without running /reset first. Any findings or ' +
-        'resume notes from that session were not swept and may be lost. Run /reset before your next /clear.'
+        'Heads up: the previous session was cleared without running /wrap-up first. Any findings or ' +
+        'resume notes from that session were not swept and may be lost. Run /wrap-up before your next /clear.'
       );
     }
   }

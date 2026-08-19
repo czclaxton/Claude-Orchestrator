@@ -43,9 +43,9 @@ Keep it tight — this is a working note for the next session, not a report for 
 
 ## 3. Mark that findings were swept
 
-Write `~/.claude/orchestrator-reset-sentinel.json` with a timestamp, e.g.
-`{"reset_at": "<ISO-8601 timestamp>"}`. This is what lets the `SessionStart` hook confirm `/reset`
-actually ran before the next `/clear`, instead of assuming it did.
+Write `~/.claude/orchestrator-wrapup-sentinel.json` with a timestamp, e.g.
+`{"wrapped_up_at": "<ISO-8601 timestamp>"}`. This is what lets the `SessionStart` hook confirm
+`/wrap-up` actually ran before the next `/clear`, instead of assuming it did.
 
 ## 4. Tell the user to clear
 
