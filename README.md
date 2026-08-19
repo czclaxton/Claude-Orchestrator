@@ -70,18 +70,21 @@ and get an advisor review before reporting any deliverable done.
 
 ## Starting and ending a session: /wrap-up and /catch-up
 
-Two commands for the two moments that bookend a working session — named to avoid Claude Code's own
-reserved words (`/reset` and `/resume` both collide with built-in behavior and silently fail to
-reach a plugin command, so don't rename these back):
+Two commands for the two moments that bookend a working session. **Type the full plugin-qualified
+name** — `/claude-orchestrator:wrap-up` and `/claude-orchestrator:catch-up`. Plugin commands don't
+have a bare-name shortcut in Claude Code; typing just `/wrap-up` returns "Unknown command." (These
+also aren't named `/reset` / `/resume` — both of those are reserved elsewhere in Claude Code and
+silently fail to reach a plugin command at all, in a much more confusing way than a clean "Unknown
+command" — so don't rename these back.)
 
-- **`/wrap-up`** — run this right before you `/clear`. It overwrites a local `RESUME-PROMPT.md` at
-  the project root so a fresh session can pick up where you left off, and — only if testing mode is
-  on (see below) — sweeps any friction/findings about the plugin itself into your personal notes
-  file. It ends with an explicit "run `/clear` now."
-- **`/catch-up`** — a deliberate, deeper "catch me up" for the current project: reads
-  `RESUME-PROMPT.md` if present, checks real git state, and reconciles the two before summarizing
-  what's open and what's next. Use it when you want more than the automatic reminder below gives
-  you.
+- **`/claude-orchestrator:wrap-up`** — run this right before you `/clear`. It overwrites a local
+  `RESUME-PROMPT.md` at the project root so a fresh session can pick up where you left off, and —
+  only if testing mode is on (see below) — sweeps any friction/findings about the plugin itself
+  into your personal notes file. It ends with an explicit "run `/clear` now."
+- **`/claude-orchestrator:catch-up`** — a deliberate, deeper "catch me up" for the current project:
+  reads `RESUME-PROMPT.md` if present, checks real git state, and reconciles the two before
+  summarizing what's open and what's next. Use it when you want more than the automatic reminder
+  below gives you.
 
 A `SessionStart` hook backs `/wrap-up` up automatically: every session start checks whether the
 previous one was cleared without running `/wrap-up` first, and if so, flags it right away — a

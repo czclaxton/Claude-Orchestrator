@@ -39,7 +39,7 @@ function main() {
     contextParts.push(
       'Claude Orchestrator testing mode is active (~/.claude/orchestrator-testing.md exists). ' +
       'Capture friction/findings about the orchestrator plugin itself during this session, described ' +
-      'project-agnostically, and sweep them via /wrap-up before your next /clear.'
+      'project-agnostically, and sweep them via /claude-orchestrator:wrap-up before your next /clear.'
     );
   }
 
@@ -52,8 +52,8 @@ function main() {
       }
     } else {
       contextParts.push(
-        'Heads up: the previous session was cleared without running /wrap-up first. Any findings or ' +
-        'resume notes from that session were not swept and may be lost. Run /wrap-up before your next /clear.'
+        'Heads up: the previous session was cleared without running /claude-orchestrator:wrap-up first. Any findings or ' +
+        'resume notes from that session were not swept and may be lost. Run /claude-orchestrator:wrap-up before your next /clear.'
       );
     }
   }
