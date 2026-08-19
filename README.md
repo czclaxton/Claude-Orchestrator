@@ -70,33 +70,30 @@ and get an advisor review before reporting any deliverable done.
 
 ## Starting and ending a session: /wrap-up and /catch-up
 
-Two commands for the two moments that bookend a working session. **Type the full plugin-qualified
-name** — `/claude-orchestrator:wrap-up` and `/claude-orchestrator:catch-up`. Plugin commands don't
-have a bare-name shortcut in Claude Code; typing just `/wrap-up` returns "Unknown command." (These
-also aren't named `/reset` / `/resume` — both of those are reserved elsewhere in Claude Code and
-silently fail to reach a plugin command at all, in a much more confusing way than a clean "Unknown
-command" — so don't rename these back.)
+- **`/claude-orchestrator:wrap-up`** — run before `/clear`. Writes a local `RESUME-PROMPT.md` so a
+  fresh session can pick up where you left off, sweeps plugin friction/findings into your notes if
+  testing mode is on (below), and ends by telling you to `/clear`.
+- **`/claude-orchestrator:catch-up`** — a deliberate "catch me up" for the current project: reads
+  `RESUME-PROMPT.md`, checks real git state, and summarizes what's open and what's next.
 
-- **`/claude-orchestrator:wrap-up`** — run this right before you `/clear`. It overwrites a local
-  `RESUME-PROMPT.md` at the project root so a fresh session can pick up where you left off, and —
-  only if testing mode is on (see below) — sweeps any friction/findings about the plugin itself
-  into your personal notes file. It ends with an explicit "run `/clear` now."
-- **`/claude-orchestrator:catch-up`** — a deliberate, deeper "catch me up" for the current project:
-  reads `RESUME-PROMPT.md` if present, checks real git state, and reconciles the two before
-  summarizing what's open and what's next. Use it when you want more than the automatic reminder
-  below gives you.
+Plugin commands need the full `claude-orchestrator:` prefix — there's no bare-name shortcut. For a
+shorter personal alias, add a one-line command at `~/.claude/commands/wrap-up.md`:
 
-A `SessionStart` hook backs `/wrap-up` up automatically: every session start checks whether the
-previous one was cleared without running `/wrap-up` first, and if so, flags it right away — a
-nudge, not a hard guarantee. This is a deliberate, known tradeoff: **nothing can intercept `/clear`
-before it happens** (verified against the current Claude Code hook system, not assumed), so
-`/wrap-up` is the one manual habit this plugin actually asks of you. There's no way to make it
-fully automatic.
+```
+---
+description: alias
+---
+Run the /claude-orchestrator:wrap-up command now.
+```
 
-**Turning on testing mode** (opt-in, off by default): create `~/.claude/orchestrator-testing.md`
-containing one line — the absolute path to any markdown file where you want plugin friction/notes
-appended as you use it (a personal log, a project journal, whatever you already use for this).
-Delete the file to turn it off.
+A `SessionStart` hook backs `/wrap-up` up automatically: if the previous session was cleared
+without running it, the next session opens with a reminder — a nudge, not a guarantee, since
+nothing can intercept `/clear` before it happens. `/wrap-up` is the one manual habit this plugin
+asks of you.
+
+**Testing mode** (opt-in, off by default): create `~/.claude/orchestrator-testing.md` containing
+one line — the absolute path to a markdown file where you want plugin friction/notes logged as you
+use it. Delete the file to turn it off.
 
 ## Commitment boundaries and the final review
 
