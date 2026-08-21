@@ -76,7 +76,12 @@ Three reasons, all evidenced rather than assumed:
 
 They are also a *user* of the plugin, not only its author — so their friction is product evidence, not just
 a preference. Treat their reasoning as a first-class input to be captured, not an approval to be
-collected. See `research-self-review-designs.md` in the notes repo for sources.
+collected.
+
+Sources for the claims above: Huang et al., *Large Language Models Cannot Self-Correct Reasoning Yet*
+(arXiv:2310.01798); Panickssery et al., *LLM Evaluators Recognize and Favor Their Own Generations*
+(NeurIPS 2024, arXiv:2404.13076); McAleese et al., *LLM Critics Help Catch LLM Bugs*
+(arXiv:2407.00215).
 
 ## 6. PR triage: two buckets, and nothing is closed without them
 
@@ -105,8 +110,7 @@ attached. Still their call; the process is simple, not absent.
 **The test is debatability, not blast radius.** Every edit to a command file changes behavior for
 everyone who installs the plugin — if that alone qualified, every PR would be `[decide]` and the
 distinction would carry no information. A verified correctness fix with no live tradeoff is a `[skim]`
-however important the file. (Found by applying this section to the open PRs immediately after writing
-it; the first draft's criterion collapsed on contact.)
+however important the file.
 
 Prefix the PR title with the bucket so it is visible in the list view without opening anything.
 
