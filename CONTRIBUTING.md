@@ -128,7 +128,23 @@ If the TL;DR cannot be written in three lines, the PR is doing too much and shou
 The verdict is one word and must never be gated on anything further. But the *reasoning* behind it is
 the part no model in this system can generate, and today it is lost at the next `/clear`.
 
-Interview him — at `/wrap-up`, not at the moment of decision — only when there is something to learn:
+**Decisions happen asynchronously; capture happens at the next `/catch-up`.** He reviews on his own
+time — often between sessions, often from a phone — so the session that authored a change is usually
+gone by the time it is decided. `/wrap-up` is the wrong end of the loop for anything except a decision
+made inside the current session.
+
+**Merging with no comment is a complete action and costs him nothing further.** That is a plain
+agreeing approval. If the baseline carries any additional obligation, the whole mechanism stops being
+answered within a month.
+
+Where signal exists, the cheapest capture is **a one-line comment on the PR at the moment he decides**
+— durable, timestamped, attached to the exact change, and immune to any number of `/clear`s. A
+comment rather than an edit to the PR body, so the record is appended to rather than overwritten.
+This is a shortcut that saves him the question later, never an obligation: if he says nothing,
+`/catch-up` picks the decision up at the start of the next session and asks then.
+
+`/catch-up` therefore sweeps PRs merged or closed since the last sweep, in both this repo and the
+notes repo, and interviews only when there is something to learn:
 
 - **a rejection** (highest signal available: something was wrong and only he knows what),
 - **an approval that overrides an advisor finding** (the advisor was wrong, or a premise was not
@@ -137,6 +153,9 @@ Interview him — at `/wrap-up`, not at the moment of decision — only when the
 
 Not on a plain approval that matched the recommendation — there is nothing there, and spending his
 attention on it is how interviews stop getting answered.
+
+A PR closed with no comment is the single highest-signal event available and always earns a question
+at the next `/catch-up`: something was wrong and he is the only one who knows what.
 
 Two rules for the interview itself:
 
