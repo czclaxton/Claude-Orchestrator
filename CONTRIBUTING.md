@@ -59,3 +59,82 @@ each plugin version bump is the trigger to go review whatever's piled up:
   produces a follow-up; most won't.
 - Merge (or close, if an entry turns out to be a duplicate or a dead end) each PR you've reviewed.
   Don't let them pile up past this checkpoint.
+
+## 5. The human is a component of this system, not a gate on it
+
+Connor is not just the approver — he is the only signal in this loop that no model here can produce.
+Three reasons, all evidenced rather than assumed:
+
+- Every lane, including the advisor, is a Claude model. The advisor is a fresh-eyes check, never an
+  independent one. Published work on self-preference bias is about a model reviewing *its own*
+  generations, which the Opus-writes/Fable-reviews split does avoid — but same-family review is not
+  independence, and the case this project actually occupies is not addressed in the literature at all.
+- Twice now the advisor has reasoned correctly inside constraints that were never actually binding.
+  Only the human can say a premise is not real. That failure is invisible from inside the system.
+- Measured results on trained code critics put **human + critic** ahead of critic alone: critics catch
+  real bugs *and* hallucinate plausible ones, and the human is what separates the two.
+
+He is also a *user* of the plugin, not only its author — so his friction is product evidence, not just
+a preference. Treat his reasoning as a first-class input to be captured, not an approval to be
+collected. See `research-self-review-designs.md` in the notes repo for sources.
+
+## 6. PR triage: three buckets
+
+Every PR lands in exactly one bucket. The bucket is decided before the PR is opened.
+
+**Auto-close — never reaches him.** Only on *objective* failure:
+- the replay or probe disproves the PR's own stated claim,
+- it duplicates an open or merged PR,
+- it is superseded by a later change.
+
+**Never auto-close on predicted preference.** "He probably won't want this" is exactly the judgment
+that the human is in the loop to make, and a filter built on it hides the input it exists to serve.
+Close, never delete; leave the branch in place; list every auto-close at the next `/wrap-up` so the
+filtering stays visible and reversible.
+
+**`[decide]` — debatable, needs him.** A real tradeoff, an unresolved advisor disagreement, a choice
+that forecloses a future option, or anything touching how the plugin behaves for other users.
+
+**`[skim]` — a slam dunk, still needs him.** Correct, verified, low blast radius — but it still goes
+through him. The process is simple, not absent.
+
+Prefix the PR title with the bucket so it is visible in the list view without opening anything.
+
+## 7. PR format: skimmable by default, nuanced on demand
+
+Most reviews are a skim and a verdict. Write for that, and let the depth be there for the times it
+is not.
+
+1. **TL;DR** — three lines maximum, at the very top: what changed, why, and what breaks if it is
+   wrong. No preamble above it.
+2. **Decision** — one line stating exactly what approving means.
+3. **Details** — the nuanced breakdown, inside a collapsed `<details>` block so it never competes
+   with the TL;DR. Mechanism, evidence, replay output, advisor verdict, tradeoffs considered.
+
+If the TL;DR cannot be written in three lines, the PR is doing too much and should be split.
+
+## 8. Capture the reasoning, not just the verdict
+
+The verdict is one word and must never be gated on anything further. But the *reasoning* behind it is
+the part no model in this system can generate, and today it is lost at the next `/clear`.
+
+Interview him — at `/wrap-up`, not at the moment of decision — only when there is something to learn:
+
+- **a rejection** (highest signal available: something was wrong and only he knows what),
+- **an approval that overrides an advisor finding** (the advisor was wrong, or a premise was not
+  binding),
+- **an approval where he edited something first** (the edit is the feedback).
+
+Not on a plain approval that matched the recommendation — there is nothing there, and spending his
+attention on it is how interviews stop getting answered.
+
+Two rules for the interview itself:
+
+- **Open question first, hypothesis second.** The session asking is the session that authored the
+  work, and a leading question ("was it because X?") collects agreement rather than information.
+- **One question at a time, plainly worded.** Not a questionnaire.
+
+Log answers to `lessons.md` marked **user-sourced**, kept distinct from model-observed findings, under
+the same promotion discipline: one answer is a logged data point, recurrence earns a doctrine change.
+A single passing preference must not calcify into a rule.
+
