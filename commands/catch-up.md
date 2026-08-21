@@ -24,6 +24,16 @@ hook already injected automatically. Do the following:
 
    and compare that hash against `git rev-parse <branch>`.
 
+   **Scope the query to match the claim.** `refs/heads/<branch>` answers about *that branch only*
+   and is silent about every other ref — and a filtered query that returns exactly what you asked
+   for is indistinguishable from a complete picture, which is the same trap as the empty `fetch`.
+   Any repo-wide claim ("nothing new has been pushed", "no new branches", "no one has opened
+   anything") requires the unscoped form:
+
+   ```
+   git ls-remote --heads origin
+   ```
+
    Two reporting rules follow from this, and they matter more than remembering to run the command:
 
    - Never repeat `git status`'s `up to date with origin/X` as if it were a statement about the
