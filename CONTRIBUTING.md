@@ -78,25 +78,28 @@ He is also a *user* of the plugin, not only its author — so his friction is pr
 a preference. Treat his reasoning as a first-class input to be captured, not an approval to be
 collected. See `research-self-review-designs.md` in the notes repo for sources.
 
-## 6. PR triage: three buckets
+## 6. PR triage: two buckets, and nothing is closed without him
 
-Every PR lands in exactly one bucket. The bucket is decided before the PR is opened.
+**Every PR that exists gets his decision.** There is no auto-close bucket, deliberately. An earlier
+draft of this section had one, restricted to objective failure — and it was removed, because any
+filter standing between a change and the human is a filter on the one input the human is here to
+provide, and the failure mode is silent by construction.
 
-**Auto-close — never reaches him.** Only on *objective* failure:
-- the replay or probe disproves the PR's own stated claim,
-- it duplicates an open or merged PR,
-- it is superseded by a later change.
+The problem auto-close appeared to solve does not need solving at the PR layer: **a PR is only opened
+once its claim has survived the replay and the advisor pass.** If the replay disproves the fix's own
+stated claim, it gets fixed or abandoned *before* becoming a PR. A known-broken change should never
+reach him in the first place, closed or otherwise.
 
-**Never auto-close on predicted preference.** "He probably won't want this" is exactly the judgment
-that the human is in the loop to make, and a filter built on it hides the input it exists to serve.
-Close, never delete; leave the branch in place; list every auto-close at the next `/wrap-up` so the
-filtering stays visible and reversible.
+Abandoned attempts still get named at the next `/wrap-up` — a one-line note on what was tried and why
+it was dropped. Not for approval; so that work disappearing before the PR layer stays visible.
 
-**`[decide]` — debatable, needs him.** A real tradeoff, an unresolved advisor disagreement, a choice
-that forecloses a future option, or anything touching how the plugin behaves for other users.
+Every PR is therefore one of two buckets, decided before it is opened:
 
-**`[skim]` — a slam dunk, still needs him.** Correct, verified, low blast radius — but it still goes
-through him. The process is simple, not absent.
+**`[decide]` — debatable.** A real tradeoff, an unresolved advisor disagreement, a choice that
+forecloses a future option, or anything touching how the plugin behaves for other users.
+
+**`[skim]` — a slam dunk.** Correct, verified, low blast radius — still his call, but the process is
+simple, not absent.
 
 Prefix the PR title with the bucket so it is visible in the list view without opening anything.
 
