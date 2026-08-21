@@ -49,7 +49,7 @@ before trusting it's live — the update command reporting success doesn't confi
 
 When testing mode is on, `/claude-orchestrator:wrap-up` opens a small PR in Claude-Orchestrator-Notes
 for each finding it logs, rather than pushing straight to that repo's default branch — deliberately
-not gated on Connor's approval (it's a private, single-reader file, and gating every entry behind a
+not gated on the user's approval (it's a private, single-reader file, and gating every entry behind a
 merge click would just reintroduce the friction that made findings get skipped before). Instead,
 each plugin version bump is the trigger to go review whatever's piled up:
 
@@ -59,3 +59,111 @@ each plugin version bump is the trigger to go review whatever's piled up:
   produces a follow-up; most won't.
 - Merge (or close, if an entry turns out to be a duplicate or a dead end) each PR you've reviewed.
   Don't let them pile up past this checkpoint.
+
+## 5. The human is a component of this system, not a gate on it
+
+The user is not just the approver — they are the only signal in this loop that no model here can produce.
+Three reasons, all evidenced rather than assumed:
+
+- Every lane, including the advisor, is a Claude model. The advisor is a fresh-eyes check, never an
+  independent one. Published work on self-preference bias is about a model reviewing *its own*
+  generations, which the Opus-writes/Fable-reviews split does avoid — but same-family review is not
+  independence, and the case this project actually occupies is not addressed in the literature at all.
+- Twice now the advisor has reasoned correctly inside constraints that were never actually binding.
+  Only the human can say a premise is not real. That failure is invisible from inside the system.
+- Measured results on trained code critics put **human + critic** ahead of critic alone: critics catch
+  real bugs *and* hallucinate plausible ones, and the human is what separates the two.
+
+They are also a *user* of the plugin, not only its author — so their friction is product evidence, not just
+a preference. Treat their reasoning as a first-class input to be captured, not an approval to be
+collected. See `research-self-review-designs.md` in the notes repo for sources.
+
+## 6. PR triage: two buckets, and nothing is closed without them
+
+**Every PR that exists gets their decision.** There is no auto-close bucket, deliberately. An earlier
+draft of this section had one, restricted to objective failure — and it was removed, because any
+filter standing between a change and the human is a filter on the one input the human is here to
+provide, and the failure mode is silent by construction.
+
+The problem auto-close appeared to solve does not need solving at the PR layer: **a PR is only opened
+once its claim has survived the replay and the advisor pass.** If the replay disproves the fix's own
+stated claim, it gets fixed or abandoned *before* becoming a PR. A known-broken change should never
+reach them in the first place, closed or otherwise.
+
+Abandoned attempts still get named at the next `/wrap-up` — a one-line note on what was tried and why
+it was dropped. Not for approval; so that work disappearing before the PR layer stays visible.
+
+Every PR is therefore one of two buckets, decided before it is opened:
+
+**`[decide]` — debatable.** The test is whether a reasonable person could choose differently: a real
+tradeoff, an unresolved advisor disagreement, a choice that forecloses a future option, or a change
+resting on an assumption about what they want.
+
+**`[skim]` — a slam dunk.** There is a clearly correct answer, it is implemented, and the evidence is
+attached. Still their call; the process is simple, not absent.
+
+**The test is debatability, not blast radius.** Every edit to a command file changes behavior for
+everyone who installs the plugin — if that alone qualified, every PR would be `[decide]` and the
+distinction would carry no information. A verified correctness fix with no live tradeoff is a `[skim]`
+however important the file. (Found by applying this section to the open PRs immediately after writing
+it; the first draft's criterion collapsed on contact.)
+
+Prefix the PR title with the bucket so it is visible in the list view without opening anything.
+
+## 7. PR format: skimmable by default, nuanced on demand
+
+Most reviews are a skim and a verdict. Write for that, and let the depth be there for the times it
+is not.
+
+1. **TL;DR** — three lines maximum, at the very top: what changed, why, and what breaks if it is
+   wrong. No preamble above it.
+2. **Decision** — one line stating exactly what approving means.
+3. **Details** — the nuanced breakdown, inside a collapsed `<details>` block so it never competes
+   with the TL;DR. Mechanism, evidence, replay output, advisor verdict, tradeoffs considered.
+
+If the TL;DR cannot be written in three lines, the PR is doing too much and should be split.
+
+## 8. Capture the reasoning, not just the verdict
+
+The verdict is one word and must never be gated on anything further. But the *reasoning* behind it is
+the part no model in this system can generate, and today it is lost at the next `/clear`.
+
+**Decisions happen asynchronously; capture happens at the next `/catch-up`.** They review on their own
+time — often between sessions, often from a phone — so the session that authored a change is usually
+gone by the time it is decided. `/wrap-up` is the wrong end of the loop for anything except a decision
+made inside the current session.
+
+**Merging with no comment is a complete action and costs them nothing further.** That is a plain
+agreeing approval. If the baseline carries any additional obligation, the whole mechanism stops being
+answered within a month.
+
+Where signal exists, the cheapest capture is **a one-line comment on the PR at the moment they decide**
+— durable, timestamped, attached to the exact change, and immune to any number of `/clear`s. A
+comment rather than an edit to the PR body, so the record is appended to rather than overwritten.
+This is a shortcut that saves them the question later, never an obligation: if they say nothing,
+`/catch-up` picks the decision up at the start of the next session and asks then.
+
+`/catch-up` therefore sweeps PRs merged or closed since the last sweep, in both this repo and the
+notes repo, and interviews only when there is something to learn:
+
+- **a rejection** (highest signal available: something was wrong and only they know what),
+- **an approval that overrides an advisor finding** (the advisor was wrong, or a premise was not
+  binding),
+- **an approval where they edited something first** (the edit is the feedback).
+
+Not on a plain approval that matched the recommendation — there is nothing there, and spending their
+attention on it is how interviews stop getting answered.
+
+A PR closed with no comment is the single highest-signal event available and always earns a question
+at the next `/catch-up`: something was wrong and they are the only one who knows what.
+
+Two rules for the interview itself:
+
+- **Open question first, hypothesis second.** The session asking is the session that authored the
+  work, and a leading question ("was it because X?") collects agreement rather than information.
+- **One question at a time, plainly worded.** Not a questionnaire.
+
+Log answers to `lessons.md` marked **user-sourced**, kept distinct from model-observed findings, under
+the same promotion discipline: one answer is a logged data point, recurrence earns a doctrine change.
+A single passing preference must not calcify into a rule.
+
