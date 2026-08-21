@@ -95,11 +95,18 @@ it was dropped. Not for approval; so that work disappearing before the PR layer 
 
 Every PR is therefore one of two buckets, decided before it is opened:
 
-**`[decide]` — debatable.** A real tradeoff, an unresolved advisor disagreement, a choice that
-forecloses a future option, or anything touching how the plugin behaves for other users.
+**`[decide]` — debatable.** The test is whether a reasonable person could choose differently: a real
+tradeoff, an unresolved advisor disagreement, a choice that forecloses a future option, or a change
+resting on an assumption about what he wants.
 
-**`[skim]` — a slam dunk.** Correct, verified, low blast radius — still his call, but the process is
-simple, not absent.
+**`[skim]` — a slam dunk.** There is a clearly correct answer, it is implemented, and the evidence is
+attached. Still his call; the process is simple, not absent.
+
+**The test is debatability, not blast radius.** Every edit to a command file changes behavior for
+everyone who installs the plugin — if that alone qualified, every PR would be `[decide]` and the
+distinction would carry no information. A verified correctness fix with no live tradeoff is a `[skim]`
+however important the file. (Found by applying this section to the open PRs immediately after writing
+it; the first draft's criterion collapsed on contact.)
 
 Prefix the PR title with the bucket so it is visible in the list view without opening anything.
 
