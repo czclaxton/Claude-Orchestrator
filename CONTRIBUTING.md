@@ -49,7 +49,7 @@ before trusting it's live — the update command reporting success doesn't confi
 
 When testing mode is on, `/claude-orchestrator:wrap-up` opens a small PR in Claude-Orchestrator-Notes
 for each finding it logs, rather than pushing straight to that repo's default branch — deliberately
-not gated on Connor's approval (it's a private, single-reader file, and gating every entry behind a
+not gated on the user's approval (it's a private, single-reader file, and gating every entry behind a
 merge click would just reintroduce the friction that made findings get skipped before). Instead,
 each plugin version bump is the trigger to go review whatever's piled up:
 
@@ -62,7 +62,7 @@ each plugin version bump is the trigger to go review whatever's piled up:
 
 ## 5. The human is a component of this system, not a gate on it
 
-Connor is not just the approver — he is the only signal in this loop that no model here can produce.
+The user is not just the approver — he is the only signal in this loop that no model here can produce.
 Three reasons, all evidenced rather than assumed:
 
 - Every lane, including the advisor, is a Claude model. The advisor is a fresh-eyes check, never an
