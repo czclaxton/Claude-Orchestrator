@@ -33,14 +33,27 @@ existing format. Two rules, non-negotiable:
 Only do this if step 1 actually appended a new entry — skip entirely if testing mode was off or
 nothing cleared the promotion bar.
 
-**If step 1 found the repo already dirty, or not on its default branch, before you touched
-anything:** don't create a branch or open a PR — branching from a dirty tree risks sweeping
-someone else's unfinished edits into the commit, or failing outright. Leave your new entry as an
-uncommitted change in the working tree exactly as step 1 left it, and tell the user plainly that
-the PR step was skipped because the repo already had other changes (or was on a different branch)
-— they'll need to sort out committing it themselves alongside whatever else is there.
+**Check `lessons.md` itself, not the whole tree.** The only state that can actually block this step
+is a pre-existing modification to `lessons.md` by someone else — that's a genuine conflict on the one
+file you're about to commit. Other dirty or untracked files in that repo are irrelevant: the commit
+below stages `lessons.md` by path, which cannot pick up unrelated modifications and cannot stage
+untracked files at all, and untracked files survive a branch switch untouched. Do not abort on them.
 
-**Otherwise** (repo was clean and on its default branch): in the Claude-Orchestrator-Notes repo
+**If `lessons.md` already carried uncommitted entries from an earlier sweep that never opened its
+PR** — the diff is purely appended entries in the file's own format, not edits to existing text —
+**carry them along rather than aborting.** Commit and PR them together with yours, and say in the PR
+body that it carries more than one session's entries. A skipped sweep leaves exactly this state, so
+aborting on it makes every subsequent sweep abort for a reason the previous abort created; the
+backlog then grows on its own and never drains.
+
+**If `lessons.md` carried someone else's uncommitted changes before step 1 touched it** — edits to
+existing text, or anything you can't account for as a prior sweep's appended entry — **or the repo is
+not on its default branch:** don't create a branch or open a PR. Leave your new entry as an
+uncommitted change exactly as step 1 left it, and tell the user plainly which of those two things
+stopped you — an entangled `lessons.md` needs a human to separate the two sets of edits, and an
+unexpected branch needs a human to say where the work belongs.
+
+**Otherwise** (no conflicting edit to `lessons.md`, and on the default branch): in the Claude-Orchestrator-Notes repo
 (not this one), note its current branch first so you can switch back to it at the end. Then:
 
 1. Create a new branch off its default branch, named
