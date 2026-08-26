@@ -1,5 +1,5 @@
 {
-  "description": "Claude Orchestrator session hooks: injects testing-mode context on every session start, and flags a skipped /reset before the previous clear.",
+  "description": "Claude Orchestrator session hooks: reports plugin version drift, injects testing-mode context on every session start, and flags a skipped /wrap-up before the previous clear.",
   "hooks": {
     "SessionStart": [
       {
