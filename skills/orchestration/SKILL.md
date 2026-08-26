@@ -26,7 +26,7 @@ What stays with the architect regardless of cost: decomposition, interface desig
 | Routine | Sonnet | `routine-implementer` agent | The spec fully determines the outcome: boilerplate, wiring, CRUD, mechanical edits, straightforward features. **Default lane.** |
 | Complex | Opus | `complex-implementer` agent | The outcome needs judgment the spec can't capture — non-trivial algorithms, hard debugging, real design choices — but a wrong call is cheap to catch and correct. |
 | Critical | Fable | `critical-implementer` agent | That, **and** mistakes are expensive or hard to reverse: subtle concurrency, security-sensitive paths, data migrations, wide-blast-radius refactors. One-off escalations, never the default. |
-| Review | Fable | `advisor` agent | Not an implementation lane. Commitment boundaries and the mandatory end-of-deliverable review — see below. |
+| Review | Opus | `advisor` agent | Not an implementation lane. Commitment boundaries and the mandatory end-of-deliverable review — see below. Pinned to Opus so the mandatory review costs nothing extra on any plan. |
 
 Deciding rule: two questions, in order.
 
@@ -37,7 +37,11 @@ A lane that fails its spec once gets a corrected spec; twice, it escalates one r
 
 ## Plan tiers
 
-This ladder is built to run on a Claude Max plan, where all three implementation rungs and the advisor stay on their pinned models throughout a session. On a Pro plan, Fable's usage limits are tighter — treat `complex-implementer` as the effective top rung for implementation, and consider changing `model: fable` → `model: opus` in `agents/advisor.md` so the mandatory end-of-deliverable review doesn't compete with `critical-implementer` for the same budget. Same routing table either way; only the top rung's availability changes.
+The default pins are chosen so every lane the router lands in on its own runs on a model any current plan includes. The advisor review is mandatory on every deliverable, so it is pinned to Opus rather than Fable — a Fable pin would bill per deliverable on Pro, where Fable runs on pay-as-you-go credits.
+
+`critical-implementer` remains pinned to Fable. That is a deliberate one-off escalation, not a lane reached by default, and on Pro it will bill when used. If the user is on Pro and cost-sensitive, treat `complex-implementer` as the effective top rung and say so rather than escalating silently.
+
+On a plan that includes Fable, the advisor pin can be raised to `model: fable` in `agents/advisor.md`. Same routing table either way; only the ceiling moves.
 
 ## Planning phase — before any spec gets written
 

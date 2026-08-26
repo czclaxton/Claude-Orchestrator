@@ -11,9 +11,9 @@ Claude Code lets every subagent run on a different model — and lets the sessio
 | Routine | **Sonnet** | `routine-implementer` agent (default) | The spec fully determines the outcome — boilerplate, wiring, CRUD, mechanical edits |
 | Complex | **Opus** | `complex-implementer` agent | Judgment the spec can't capture decides the outcome, but a wrong call is cheap to catch: non-trivial algorithms, hard debugging, real design choices |
 | Critical | **Fable** | `critical-implementer` agent | That, **and** mistakes are expensive or hard to reverse: subtle concurrency, security-sensitive paths, data migrations, wide-blast-radius refactors |
-| Review | **Fable** | `advisor` agent | Commitment boundaries, and **always once at the end** — the advisor reviews the accumulated changes before the architect reports done |
+| Review | **Opus** | `advisor` agent | Commitment boundaries, and **always once at the end** — the advisor reviews the accumulated changes before the architect reports done. Raise this pin to Fable if your plan includes it |
 
-Tokens route by stakes: Opus emits judgment and specs, Sonnet emits the bulk of the mechanical code, Opus itself absorbs judgment calls that don't carry real risk, and Fable — the most expensive model available — is spent only where it changes outcomes: the highest-stakes implementations and the final review.
+Tokens route by stakes: Opus emits judgment and specs, Sonnet emits the bulk of the mechanical code, Opus itself absorbs judgment calls that don't carry real risk, and Fable — the most expensive model available — is spent only where it changes outcomes: the highest-stakes implementations. The final review defaults to Opus so the pattern costs nothing extra on any plan; raise it to Fable if yours includes it.
 
 The plugin ships the **orchestration skill** — the routing doctrine that teaches the session when to use each lane, the cost discipline that keeps expensive-model token volume minimal (emit judgment not volume, keep context lean, reason once then hand off), the five-part spec contract that makes context-free delegation safe, and the verification rules that keep every lane honest.
 
@@ -49,7 +49,7 @@ Then start your session as the architect:
 
 ## Requirements
 
-- **Claude Code** with a subscription that includes Fable (Pro, Max, Team, or Enterprise — all current consumer plans qualify for API access; see "Running on Pro" below for the cost tradeoff, which is real, not just a usage-limit nuance).
+- **Claude Code** with any current consumer subscription (Pro, Max, Team, or Enterprise). Out of the box every lane runs on a model your plan includes — only `critical-implementer` is pinned to Fable, and it is a deliberate one-off escalation, not a lane you land in by default. See "Running on Max" below for how to spend a bigger plan.
 - Heads-up: if a pinned Claude model isn't available on your account, Claude Code silently falls back to your session model — the pattern degrades quietly rather than erroring. If results feel unremarkable, check your plan and the pins in `agents/*.md`.
 - Heads-up, separately: a global `"model": "opusplan"` setting in `~/.claude/settings.json` (Opus while planning, Sonnet during execution) silently demotes the architect to Sonnet the moment it starts delegating — the exact opposite of what this pattern assumes. Use a plain `"model": "opus"` instead if you're running this plugin.
 
@@ -102,14 +102,21 @@ create or delete that file by hand if you prefer.
 
 Even the architect gets a second opinion. The `advisor` agent is a read-only skeptic — consulted before architecture decisions, migrations, API designs, whenever a problem has resisted two attempts, and **always once at the end of a deliverable**, where it reads the accumulated diff with fresh eyes, against the stated goal rather than the conversation, and returns ship / fix-first / rethink. It never implements. One honest limit: every lane here is a Claude model, so this is a fresh-context check, not an independent-model one — it catches assumptions the session accumulated, not blind spots the whole family shares.
 
-## Running on Pro
+## Running on Max
 
-The routing table above is built for a Max plan, where Fable is included as part of the plan (usable for up to 50% of your weekly limit) and comfortably absorbs both `critical-implementer` escalations and the mandatory end-of-deliverable review in the same session. **On Pro, Fable isn't included in the subscription at all — it runs on pay-as-you-go usage credits, billed on top of your $20.** Since two of the four lanes in this pattern are Fable, and the `advisor` review is mandatory on every single deliverable, that's a real per-task charge, not just a tighter limit. Two adjustments make the same plugin work well on Pro without incurring it:
+The defaults are built so that **every lane you land in by default runs on a model your plan already includes.** The `advisor` review is mandatory on every deliverable, so pinning it to Fable would have meant a per-task charge on Pro, where Fable isn't part of the subscription and runs on pay-as-you-go credits billed on top. It defaults to Opus instead.
 
-1. Treat `complex-implementer` (Opus) as the effective top implementation rung — reserve `critical-implementer` for the rare task that's genuinely both judgment-heavy and high-stakes.
-2. In `agents/advisor.md`, change `model: fable` to `model: opus` so the mandatory final review doesn't compete with `critical-implementer` for the same limits.
+`critical-implementer` is still pinned to Fable, and that is deliberate: it is a one-off escalation for tasks that are both judgment-heavy and expensive to get wrong, not a lane the router lands in on its own. On Pro it will bill when you use it. Reserve it, or route those tasks to `complex-implementer` instead.
 
-No structural changes needed — just the two pins above and a bias toward the Opus rung.
+**If your plan includes Fable** (Max includes it for up to 50% of your weekly limit), you are leaving capability on the table with the default advisor pin. Raise it:
+
+```
+model: fable
+```
+
+in `agents/advisor.md`, and let `critical-implementer` escalate freely.
+
+**One rough edge, stated plainly:** the copy of `agents/advisor.md` your sessions actually load lives in the plugin cache under `~/.claude/plugins/cache/`, and `claude plugin update` replaces that directory. An edit there survives until your next update and then silently reverts. There is no clean per-project override documented for plugin-shipped agents yet — if you want the change to stick, fork this repo and add your fork as the marketplace.
 
 ## FAQ
 
