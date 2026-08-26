@@ -5,6 +5,13 @@ const fs = require('fs');
 const os = require('os');
 const path = require('path');
 
+let versionNotice = () => null;
+try {
+  ({ versionNotice } = require('./version-check.js'));
+} catch {
+  // A missing or broken version check must never stop the session hook.
+}
+
 const CLAUDE_DIR = path.join(os.homedir(), '.claude');
 const TESTING_CONFIG = path.join(CLAUDE_DIR, 'orchestrator-testing.md');
 const WRAPUP_SENTINEL = path.join(CLAUDE_DIR, 'orchestrator-wrapup-sentinel.json');
@@ -34,6 +41,13 @@ function main() {
   maybeLogDiagnostic(argSubtype, raw);
 
   const contextParts = [];
+
+  try {
+    const notice = versionNotice();
+    if (notice) contextParts.push(notice);
+  } catch {
+    // Never let a version check failure cost the user their testing-mode or wrap-up context.
+  }
 
   if (fs.existsSync(TESTING_CONFIG)) {
     contextParts.push(
