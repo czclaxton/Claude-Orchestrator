@@ -110,18 +110,33 @@ it; the first draft's criterion collapsed on contact.)
 
 Prefix the PR title with the bucket so it is visible in the list view without opening anything.
 
-## 7. PR format: skimmable by default, nuanced on demand
+## 7. PR format: defined in one place, the `pr-format` skill
 
-Most reviews are a skim and a verdict. Write for that, and let the depth be there for the times it
-is not.
+The format lives in `skills/pr-format/SKILL.md` and nowhere else. That file is the only definition;
+this section is a pointer, and `commands/wrap-up.md` names the skill rather than restating it.
 
-1. **TL;DR** — three lines maximum, at the very top: what changed, why, and what breaks if it is
-   wrong. No preamble above it.
-2. **Decision** — one line stating exactly what approving means.
-3. **Details** — the nuanced breakdown, inside a collapsed `<details>` block so it never competes
-   with the TL;DR. Mechanism, evidence, replay output, advisor verdict, tradeoffs considered.
+That arrangement is deliberate and was bought with a real failure. The format used to be written
+here and paraphrased separately inside `/wrap-up`, and the two drifted: this section asked for a
+TL;DR, a Decision line and a collapsed Details block, while the command told the session "keep the
+PR body short — the heading plus one sentence is enough." The command won every time, because the
+command is the thing actually executing. Adherence to this section sat at 3 PRs out of 11 in this
+repo and 4 out of 19 in the notes repo.
 
-If the TL;DR cannot be written in three lines, the PR is doing too much and should be split.
+A rule stated twice is a rule that will disagree with itself, and the copy that runs wins the
+disagreement silently. One copy, in the place that loads.
+
+Read the skill for the full template. In outline, every PR body opens with an **Ask** (the judgment
+being made, not a changelog of the merge), a **TL;DR** under sixty words ending in what breaks if
+this is wrong, a **Checked** line naming the single largest thing that was not verified, and a
+**Considered and discarded** line tagged `searched` or `thought about only`. Everything else goes in
+a collapsed Details block with real command output under Evidence.
+
+A PR that needs more than sixty words to summarize is doing too much and gets split. That constraint
+is the real mechanism; the rest is scaffolding around it.
+
+**The outline above is a courtesy for humans browsing this repo, not a second definition.** If it
+ever disagrees with the skill, the skill is correct and this paragraph is stale. Stating the
+precedence is the point — the previous arrangement had two copies and no rule about which one won.
 
 ## 8. Capture the reasoning, not just the verdict
 
