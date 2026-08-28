@@ -9,16 +9,26 @@ Prepare this session to be cleared. Do the following, in order.
 Check whether `~/.claude/orchestrator-testing.md` exists.
 
 **If it exists:** its first non-empty line is the absolute path to `lessons.md` in the private
-Claude-Orchestrator-Notes repo. **Before touching that file, check `git status` there and note two
-things: is the working tree clean, and is it on its default branch?** Remember this — it decides
-how step 2 proceeds. Review this session for friction or successes specifically about
+Claude-Orchestrator-Notes repo. **Note which branch that repo is on before you write anything** —
+it decides how step 2 proceeds. Review this session for friction or successes specifically about
 the **Claude Orchestrator plugin itself** (routing decisions, agent behavior, spec quality —
 not the substance of whatever project you were actually working in). Apply the same promotion bar
-already used in that file: only log something that recurred, or was notable/severe enough to
+already used in `lessons.md`: only log something that recurred, or was notable/severe enough to
 justify logging alone. Don't log routine, uneventful use.
 
-For anything that clears that bar, append an entry to that `lessons.md` file, following its
-existing format. Two rules, non-negotiable:
+**Write your entries to a new file, not to `lessons.md`.** Create
+`pending-lessons/<YYYYMMDD-HHMMSS>-<short-kebab-slug-from-the-entry-heading>.md` alongside
+`lessons.md` in that repo, holding this session's entries in the same format `lessons.md` uses.
+Create the `pending-lessons/` directory if it does not exist.
+
+A separate file per sweep is the whole point. Every sweep used to append to the tail of one shared
+file, so every open PR conflicted with the last and none of them ever merged — fourteen of them, at
+one point, none merged in three weeks. Distinct files never collide, so these merge in any order.
+A later review session folds the pending entries into `lessons.md` with a status on each and
+deletes them; that collection step is where the reading happens, and the directory being non-empty
+is what says it is due.
+
+Two rules for the entries themselves, non-negotiable:
 - **Describe the orchestrator's behavior only, project-agnostically.** Never quote actual project
   code, file paths, identifiers, or business logic from the project you were working in — that's
   the real leak-prevention mechanism, not where the file happens to live.
@@ -28,47 +38,34 @@ existing format. Two rules, non-negotiable:
 
 **If it doesn't exist:** skip this step entirely. Testing mode is off; there's nothing to sweep.
 
-## 2. Open a PR for the lessons.md update, if you changed it
+## 2. Open a PR for the pending-lessons file, if you wrote one
 
-Only do this if step 1 actually appended a new entry — skip entirely if testing mode was off or
-nothing cleared the promotion bar.
+Only do this if step 1 actually wrote a fragment — skip entirely if testing mode was off or nothing
+cleared the promotion bar.
 
-**Check `lessons.md` itself, not the whole tree.** The only state that can actually block this step
-is a pre-existing modification to `lessons.md` by someone else — that's a genuine conflict on the one
-file you're about to commit. Other dirty or untracked files in that repo are irrelevant: the commit
-below stages `lessons.md` by path, which cannot pick up unrelated modifications and cannot stage
-untracked files at all, and untracked files survive a branch switch untouched. Do not abort on them.
+**A new file cannot conflict with anything, so there is no dirty-tree check here.** The file you are
+committing did not exist a moment ago: no other session has edited it, no other branch touches it,
+and staging it by path cannot pick up anything else. Other dirty or untracked files in that repo are
+irrelevant and never a reason to abort.
 
-**If `lessons.md` already carried uncommitted entries from an earlier sweep that never opened its
-PR** — the diff is purely appended entries in the file's own format, not edits to existing text —
-**carry them along rather than aborting.** Commit and PR them together with yours, and say in the PR
-body that it carries more than one session's entries. A skipped sweep leaves exactly this state, so
-aborting on it makes every subsequent sweep abort for a reason the previous abort created; the
-backlog then grows on its own and never drains.
+**If the repo is not on its default branch:** don't create a branch or open a PR. Leave the fragment
+in place and tell the user plainly that an unexpected branch stopped you — only a human can say
+where that work belongs.
 
-**If `lessons.md` carried someone else's uncommitted changes before step 1 touched it** — edits to
-existing text, or anything you can't account for as a prior sweep's appended entry — **or the repo is
-not on its default branch:** don't create a branch or open a PR. Leave your new entry as an
-uncommitted change exactly as step 1 left it, and tell the user plainly which of those two things
-stopped you — an entangled `lessons.md` needs a human to separate the two sets of edits, and an
-unexpected branch needs a human to say where the work belongs.
+**Otherwise:** in the Claude-Orchestrator-Notes repo (not this one), note its current branch first
+so you can switch back at the end. Then:
 
-**Otherwise** (no conflicting edit to `lessons.md`, and on the default branch): in the Claude-Orchestrator-Notes repo
-(not this one), note its current branch first so you can switch back to it at the end. Then:
+1. Create a new branch off its default branch, named `lessons/<same-timestamp-and-slug-as-the-file>`.
+2. Stage and commit **only the one file you wrote** — never `git add -A`, and never touch
+   `lessons.md`. Write a plain commit message describing what was logged.
+3. Push the branch and open a PR against the repo's default branch (`gh pr create`). **Write the PR
+   body using the `pr-format` skill** — use its lessons-entry variant. That skill is the only
+   definition of this project's PR format; do not restate or summarize it here.
+4. Switch back to whatever branch the repo was on before step 1.
 
-1. Create a new branch off its default branch, named
-   `lessons/<YYYYMMDD-HHMMSS>-<short-kebab-slug-from-the-entry-heading>` (the timestamp keeps it
-   unique even if two entries land the same day).
-2. Stage and commit **only `lessons.md`** — never `git add -A` or sweep in other uncommitted work
-   that might be sitting in that repo for unrelated reasons. Write a plain commit message
-   describing what was logged (the entry's own heading is usually enough).
-3. Push the branch and open a PR against the repo's default branch (`gh pr create`). Keep the PR
-   body short — the heading plus one sentence is enough; the diff already has the full entry.
-4. Switch back to whatever branch the repo was on before step 1, so the working tree isn't left on
-   the new branch.
-
-**Do not merge this PR now.** It's reviewed later, in a batch, at the next plugin version bump —
-see `CONTRIBUTING.md`'s version-bump checklist.
+**Do not merge this PR now.** Merging a fragment PR is filing, not judgment — it moves the file onto
+the default branch, still pending, still unread. The judgment happens at a review session, over the
+`pending-lessons/` directory.
 
 If branch creation, commit, push, or PR creation fails for any reason, report it plainly and move
 on — don't let it block the rest of this command.
