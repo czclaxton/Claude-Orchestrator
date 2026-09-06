@@ -110,21 +110,34 @@ create or delete that file by hand if you prefer.
 
 Even the architect gets a second opinion. The `advisor` agent is a read-only skeptic — consulted before architecture decisions, migrations, API designs, whenever a problem has resisted two attempts, and **always once at the end of a deliverable**, where it reads the accumulated diff with fresh eyes, against the stated goal rather than the conversation, and returns ship / fix-first / rethink. It never implements. One honest limit: every lane here is a Claude model, so this is a fresh-context check, not an independent-model one — it catches assumptions the session accumulated, not blind spots the whole family shares.
 
-## Running on Max
+## Choosing your models
 
-The defaults are built so that **every lane you land in by default runs on a model your plan already includes.** The `advisor` review is mandatory on every deliverable, so pinning it to Fable would have meant a per-task charge on Pro, where Fable isn't part of the subscription and runs on pay-as-you-go credits billed on top. It defaults to Opus instead.
+The plugin assigns **roles**, not plans. Each lane names the model it wants, and you decide which
+model fills each role — mix them however suits your work and whatever your account offers.
 
-`critical-implementer` is still pinned to Fable, and that is deliberate: it is a one-off escalation for tasks that are both judgment-heavy and expensive to get wrong, not a lane the router lands in on its own. On Pro it will bill when you use it. Reserve it, or route those tasks to `complex-implementer` instead.
+The shipped defaults are chosen so that every lane the router lands in on its own runs on a model
+most accounts include. The `advisor` review runs on every deliverable, so it defaults to Opus rather
+than the most expensive model available: a mandatory step should not carry a premium charge.
+`critical-implementer` is the exception — it asks for Fable deliberately, as a one-off escalation for
+work that is both judgment-heavy and expensive to get wrong, never a lane the router reaches by
+itself. If that model costs you extra, reserve it or route those tasks to `complex-implementer`
+instead.
 
-**If your plan includes Fable** (Max includes it for up to 50% of your weekly limit), you are leaving capability on the table with the default advisor pin. Raise it:
+**To change any assignment,** edit the `model:` line in the relevant file under `agents/`:
 
 ```
 model: fable
 ```
 
-in `agents/advisor.md`, and let `critical-implementer` escalate freely.
+If your account includes a stronger model than a default assumes, raising the `advisor` pin is the
+single highest-value change — it is the one lane that runs on every deliverable.
 
-**One rough edge, stated plainly:** the copy of `agents/advisor.md` your sessions actually load lives in the plugin cache under `~/.claude/plugins/cache/`, and `claude plugin update` replaces that directory. An edit there survives until your next update and then silently reverts. There is no clean per-project override documented for plugin-shipped agents yet — if you want the change to stick, fork this repo and add your fork as the marketplace.
+**One rough edge, stated plainly:** the copy of `agents/*.md` your sessions actually load lives in
+the plugin cache under `~/.claude/plugins/cache/`, and `claude plugin update` replaces that
+directory. An edit made there survives until your next update and then silently reverts. To make a
+change stick, either fork this repo and point your marketplace at the fork, or wait for the plugin to
+expose these as configurable options — the plugin manifest format supports user-set values that
+persist across updates, and this plugin does not declare any yet.
 
 ## FAQ
 
