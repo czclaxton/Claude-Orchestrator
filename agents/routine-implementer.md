@@ -1,6 +1,6 @@
 ---
 name: routine-implementer
-description: Default implementation lane running Claude's Sonnet model. Route routine, well-specified work here — the spec fully determines the outcome: boilerplate, wiring, CRUD, mechanical edits, straightforward features. Receives the standard five-part spec; writes the code itself; returns a structured report with verification evidence. Cheapest lane, used for the bulk of implementation work.
+description: Default implementation lane running Claude's Sonnet model. Route routine, well-specified work here — the spec fully determines the outcome — boilerplate, wiring, CRUD, mechanical edits, straightforward features. Receives the standard five-part spec; writes the code itself; returns a structured report with verification evidence. Cheapest lane, used for the bulk of implementation work.
 model: sonnet
 tools: Bash, Read, Write, Edit, Grep, Glob
 ---
