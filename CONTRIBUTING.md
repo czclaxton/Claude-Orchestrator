@@ -45,6 +45,34 @@ claude plugin update claude-orchestrator@claude-orchestrator
 Verify the fix actually landed in the cache (`~/.claude/plugins/cache/claude-orchestrator/claude-orchestrator/<version>/...`)
 before trusting it's live — the update command reporting success doesn't confirm content changed.
 
+**Validate the components, not just the manifest.** `claude plugin validate .` at the repo root
+checks the marketplace manifest and nothing else — it passes clean while an agent file is broken.
+Point it at the component directories:
+
+```
+claude plugin validate ./agents
+claude plugin validate ./commands
+claude plugin validate ./skills
+```
+
+This is not hypothetical. `agents/routine-implementer.md` shipped for months with a description
+containing an unquoted `: ` — YAML's most common failure — so its **entire frontmatter block failed
+to parse**. Name, description, `model` and `tools` all fell back to defaults. The consequences were
+invisible from anywhere except a session's own agent listing: the cheapest and most-used lane ran
+with **every tool available** instead of its declared six, carried a generic placeholder description
+that degraded routing, and — the expensive one — silently ignored its `model: sonnet` pin and
+inherited the session model instead.
+
+That last symptom was diagnosed across several sessions as a Claude Code regression, and a feedback
+report was filed with Anthropic about it. It was this file. A single controlled dispatch settled it:
+`critical-implementer`, whose frontmatter parses, resolved its `model: fable` pin correctly with no
+override on the same CLI version in the same session.
+
+**Never put an unquoted `: ` inside a frontmatter value.** Use an em dash, or quote the whole value —
+and run the validator against `./agents` before every version bump, because nothing else catches it.
+
+## 4. Before you bump: review the open lessons.md PRs
+
 ## 4. Two repos, two different jobs — and only one of them is the user's
 
 The notes repo and the plugin repo carry different kinds of PR, and confusing them is what stalled
