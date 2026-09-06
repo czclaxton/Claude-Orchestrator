@@ -15,8 +15,21 @@ One person, reviewing in batches, with less attention than there is work. Write 
 briefs a CEO at the start of the day: here is the thing, here is what you need to decide, here is
 what bites you if it goes wrong. They will ask for more if they need it.
 
-**Plain language, not engineering register.** No jargon without a definition. If a term needs
-explaining, either explain it in four words or use a different term.
+**Assume they know the plugin. Assume they know nothing about this issue.** They built this thing —
+never explain what a lane, an agent, or a command is. But they were not in the session where the
+problem surfaced, so the problem itself starts from zero: what went wrong or what was missing, and
+why it matters. A body that opens mid-thought, as though continuing a conversation they were part
+of, is the most common way this format fails.
+
+**Explain the issue in plain language.** Describe what actually happens, not the mechanism that
+causes it. "A worker could delete a branch and nothing would stop it" lands; "the lane holds
+unrestricted Bash with no `permissions` block" does not.
+
+**Technical detail is the exception, not the default.** Leave it out unless the decision genuinely
+turns on it. When a technical term must appear above the fold, gloss it in the same sentence in a
+handful of words — `enforce_admins` (whether the rule also applies to you). Anything needing more
+explanation than that belongs in the collapsed block, and if the decision cannot be made without it,
+that is a signal the change is one of the rare ones the format does not fit — see below.
 
 **The reader should be able to skim it and decide.** If they have to read it twice, it failed.
 
