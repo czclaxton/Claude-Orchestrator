@@ -1,6 +1,6 @@
 ---
 name: pr-format
-description: The canonical PR body format for this project — a one-line decision, a TL;DR of at most three sentences, and five short bullets. Everything else collapsed. USE WHEN writing or revising a pull request body, running `gh pr create`, opening a PR for a lessons entry or a research note, or deciding how much detail a PR description needs.
+description: The canonical PR body format for this project — a one-line decision, a TL;DR of at most three sentences, and six short bullets including how it was built. Everything else collapsed. USE WHEN writing or revising a pull request body, running `gh pr create`, opening a PR for a lessons entry or a research note, or deciding how much detail a PR description needs.
 ---
 
 # PR format — a secretary's brief, not an engineering document
@@ -43,6 +43,7 @@ that is a signal the change is one of the rare ones the format does not fit — 
 **TL;DR** — <one to three sentences. Hard limit.>
 
 - **Changes:** <what actually changes>
+- **How:** <the approach taken — the thing that makes it work>
 - **Why:** <the reason, in one line>
 - **Risk:** <what breaks if this is wrong>
 - **Unverified:** <the single biggest thing not checked, or "nothing material">
@@ -51,12 +52,12 @@ that is a signal the change is one of the rare ones the format does not fit — 
 <details>
 <summary>Detail and evidence</summary>
 
-<mechanism, real command output, tradeoffs, anything else>
+<full mechanism, real command output, tradeoffs, anything else>
 
 </details>
 ```
 
-That is the whole body above the fold: one line, up to three sentences, five bullets. Everything
+That is the whole body above the fold: one line, up to three sentences, six bullets. Everything
 else goes inside `<details>`.
 
 ## Rules
@@ -71,7 +72,19 @@ is worth a false alarm when the check is wrong" is the thing only they can answe
 
 **TL;DR.** Three sentences, hard. Longer means the PR is doing too much and should be split.
 
-**One line per bullet.** A bullet that wraps to three lines belongs in the collapsed section.
+**How.** The approach actually taken, not the outcome. A sound idea can be built in a way that does
+not match the intent, and this bullet is the only place that becomes visible — `Changes` says which
+files moved, `How` says what makes it work. For PR-14-shaped changes: `Changes` is "one line added to
+each of three agent files"; `How` is "an unconditional instruction placed first, with an escalation
+route named, rather than removing the capability or adding a blocking hook."
+
+This is the hardest bullet to compress, because the interesting part is usually the nuance. When one
+line genuinely cannot carry it, put the shortest honest version here and the full mechanism in the
+collapsed block — but **never omit it, and never let it degrade into a restatement of `Changes`.**
+If the two bullets say the same thing, the `How` has not been written yet.
+
+**One line per bullet.** A bullet that wraps to three lines belongs in the collapsed section. `How`
+is the one bullet allowed two, and only when the second line is carrying real mechanism.
 
 **Unverified is required and specific.** Name the single largest thing not checked. "Nothing
 material" is a valid answer and a visible one; vagueness is not. This bullet exists because a PR body
@@ -103,6 +116,7 @@ observation has no alternatives, but it does have a history:
 **TL;DR** — <one to three sentences: what was observed and why it matters.>
 
 - **Findings:** <N, one clause each>
+- **How established:** <what was actually done to observe this — re-ran it, read the file, one session's impression>
 - **Why it matters:** <one line>
 - **Risk:** <what happens if these are wrong or ignored>
 - **Unverified:** <which findings are impressions rather than re-checked>
@@ -117,7 +131,7 @@ different causes worth telling apart:**
 1. **The PR was weak** — the summary was vague, buried the decision, or hid the risk. Fix the PR, and
    treat it as a defect in the writing.
 2. **The change was genuinely too complex for the format** — the nuance could not survive three
-   sentences and five bullets. That is a real edge case, it is expected, and expanding is the right
+   sentences and six bullets. That is a real edge case, it is expected, and expanding is the right
    answer.
 
 Assume cause 1 first. Almost every PR in this project should fit the format, and reaching for cause 2
