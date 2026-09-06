@@ -73,18 +73,31 @@ and run the validator against `./agents` before every version bump, because noth
 
 ## 4. Before you bump: review the open lessons.md PRs
 
-When testing mode is on, `/claude-orchestrator:wrap-up` opens a small PR in Claude-Orchestrator-Notes
-for each finding it logs, rather than pushing straight to that repo's default branch — deliberately
-not gated on the user's approval (it's a private, single-reader file, and gating every entry behind a
-merge click would just reintroduce the friction that made findings get skipped before). Instead,
-each plugin version bump is the trigger to go review whatever's piled up:
+## 4. Two repos, two different jobs — and only one of them is the user's
 
-- Read each open PR's diff. Decide if it's just a logged observation (merge as-is, no other action)
-  or if it points at something actionable — a real doc that should change (this file, the README, an
-  agent definition), a bug worth fixing, a design assumption worth revisiting. Not every entry
-  produces a follow-up; most won't.
-- Merge (or close, if an entry turns out to be a duplicate or a dead end) each PR you've reviewed.
-  Don't let them pile up past this checkpoint.
+The notes repo and the plugin repo carry different kinds of PR, and confusing them is what stalled
+this loop for weeks.
+
+**Notes-repo PRs are filing, not judgment, and the user is not their gate.** When testing mode is on,
+`/claude-orchestrator:wrap-up` opens a small PR there for each fragment it writes. Merging one moves
+the fragment onto that repo's default branch and nothing else — it lands in `pending-lessons/`, never
+in `lessons.md`, so no doctrine is accepted, no behaviour changes, and nothing ships. The orchestrator
+merges these as bookkeeping.
+
+**Plugin-repo PRs are where the user decides.** A change to a command, an agent, a skill or the README
+alters what every install does. That is the gate, and it is the only one.
+
+This corrects an earlier version of this section, which told the user to review every notes PR at each
+version bump. It never once ran: twenty-three sat open, the oldest six days, across four version bumps
+in a single day. A checkpoint that has never fired is not a checkpoint — it is a queue with a person
+standing in it.
+
+**The safeguard that replaces it.** A user who never reads the fragments only ever sees the
+orchestrator's consolidation of them, and the orchestrator is the compression step. This project has
+already logged an instance of a correct finding being degraded into a false claim one hop downstream
+while being summarised. So: **a plugin PR built from fragments must name the fragments it consumed**,
+by filename, in its collapsed detail block. That makes spot-checking cheap without making approval a
+gate — the user opens one when a claim looks off, rather than reading all of them to find out.
 
 ## 5. The human is a component of this system, not a gate on it
 
