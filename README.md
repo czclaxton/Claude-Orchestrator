@@ -17,6 +17,14 @@ Tokens route by stakes: Opus emits judgment and specs, Sonnet emits the bulk of 
 
 The plugin ships the **orchestration skill** — the routing doctrine that teaches the session when to use each lane, the cost discipline that keeps expensive-model token volume minimal (emit judgment not volume, keep context lean, reason once then hand off), the five-part spec contract that makes context-free delegation safe, and the verification rules that keep every lane honest.
 
+Every delegation carries all five parts, because the lane shares none of your conversation:
+
+1. **Objective** — what to build or change, one paragraph
+2. **Files** — exact paths to create or modify
+3. **Interfaces** — signatures, types, or API shapes the code must match
+4. **Constraints** — project conventions, things not to touch
+5. **Verification** — the command(s) that prove it works
+
 ## Install
 
 ```
@@ -49,7 +57,7 @@ Then start your session as the architect:
 
 ## Requirements
 
-- **Claude Code** with any current consumer subscription (Pro, Max, Team, or Enterprise). Out of the box every lane runs on a model your plan includes — only `critical-implementer` is pinned to Fable, and it is a deliberate one-off escalation, not a lane you land in by default. See "Running on Max" below for how to spend a bigger plan.
+- **Claude Code** with any current subscription (Pro, Max, Team, or Enterprise). Out of the box every lane runs on a model your plan includes — only `critical-implementer` is pinned to Fable, and it is a deliberate one-off escalation, not a lane you land in by default. See "Running on Max" below for how to spend a bigger plan. The plan-specific guidance below is written for Pro and Max; on Team and Enterprise, model availability is set by your workspace admin, so check which models you actually have before relying on the Fable pin.
 - Heads-up: if a pinned Claude model isn't available on your account, Claude Code silently falls back to your session model — the pattern degrades quietly rather than erroring. If results feel unremarkable, check your plan and the pins in `agents/*.md`.
 - Heads-up, separately: a global `"model": "opusplan"` setting in `~/.claude/settings.json` (Opus while planning, Sonnet during execution) silently demotes the architect to Sonnet the moment it starts delegating — the exact opposite of what this pattern assumes. Use a plain `"model": "opus"` instead if you're running this plugin.
 
