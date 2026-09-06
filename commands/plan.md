@@ -12,8 +12,10 @@ and inspect the files needed to establish existing interfaces, conventions, and 
 commands. Resolve factual questions from the project before asking the user to decide them.
 
 Keep a short working list of settled decisions and material gaps. Tie each gap to something the
-user said, a contradiction, or an omission that would change the implementation. A material gap
-is one whose possible answers change behavior, scope, interfaces, safety, or proof of correctness.
+user said, a contradiction, or an omission. User decisions cover what gets built: scope, behavior,
+tradeoffs a reasonable person could choose differently, or choices expensive to reverse.
+Implementation details with defensible defaults (naming, file layout, internal structure, idioms)
+belong to the implementer: decide them, state them in the spec, and move on.
 
 Check scope boundaries, failure cases, exact interfaces, existing conventions, verification, and
 the cost and reversibility of a wrong choice. Use these as lenses on this request, not a fixed
@@ -25,7 +27,8 @@ when several outcomes depend on each other. Ask what outcome the user wants, the
 
 ## 2. Interview one decision at a time
 
-Choose the unresolved decision that most affects the remaining plan. Explain which part of the
+Before each question, test: Is it unanswered and does it change what gets built, leave a reasonable user a meaningful tradeoff, or cost much to reverse, rather than just select an implementation detail with a defensible default? Ask only if yes.
+Choose the qualifying decision that most affects the remaining plan. Explain which part of the
 user's explanation leaves it open and what would otherwise have to be guessed.
 
 Ask exactly one question per turn, never a batch or a question containing several decisions.
@@ -35,17 +38,17 @@ Then wait for the user's answer before asking the next question. A recommendatio
 
 After each answer, update the settled decisions and gaps. Check whether the answer changes an
 earlier decision or exposes another gap. Choose the next question from that updated understanding,
-not from a preset sequence. If answers conflict, ask which should govern before proceeding.
+not from a preset sequence. If answers conflict, apply the same test before asking which governs.
 
-Depth scales with ambiguity and stakes. For a trivial, unambiguous request, run the completeness
-check below and write the spec without forcing questions. For higher stakes, probe the relevant
-failure and recovery cases until they are settled. Do not ask for approval of facts already checked.
+Depth scales with unresolved user decisions, not request length or engineering complexity.
+For a clear request, even one sentence, default to zero questions: check completeness and write
+the spec. Ask only for a specific gap that passes the test, including in failure and recovery cases.
 
 ## 3. Check whether planning is complete
 
 Before ending the interview, try to fill every part of the five-part contract below in working
-notes. For each material statement, identify its basis in the user's request, an answer, or an
-inspected project fact. A proposed default without such a basis is still an unresolved decision.
+notes. For each material statement, identify its basis in the user's request, an answer, an
+inspected project fact, or a defensible implementation default with its rationale.
 
 Walk through the requested behavior and each relevant failure case as an implementer with no
 conversation history. Check that the notes determine the outcome, name every affected file,
@@ -56,7 +59,8 @@ required behavior as part of the work; do not pretend it already exists.
 The check passes only when all five parts are complete, every material statement has a basis,
 and there are zero unresolved material gaps, contradictions, or placeholders.
 For an inapplicable part, write why it does not apply rather than leaving it blank.
-If the check fails, return to the single highest-impact unanswered decision and ask about it.
+If the check fails, inspect missing facts or decide implementation defaults; ask only for a gap
+that passes the question test, choosing the highest-impact one.
 Do not hand an implementer a choice disguised as "use your judgment."
 
 If the user stops early or needed evidence is unavailable, report the specific unresolved gaps.
