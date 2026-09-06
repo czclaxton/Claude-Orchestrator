@@ -125,14 +125,13 @@ repo and 4 out of 19 in the notes repo.
 A rule stated twice is a rule that will disagree with itself, and the copy that runs wins the
 disagreement silently. One copy, in the place that loads.
 
-Read the skill for the full template. In outline, every PR body opens with an **Ask** (the judgment
-being made, not a changelog of the merge), a **TL;DR** under sixty words ending in what breaks if
-this is wrong, a **Checked** line naming the single largest thing that was not verified, and a
-**Considered and discarded** line tagged `searched` or `thought about only`. Everything else goes in
-a collapsed Details block with real command output under Evidence.
+**Read the skill for the template. This section deliberately does not reproduce it** — an outline
+here is still a second copy, and it goes stale the moment the skill changes, which is the failure
+described above in miniature.
 
-A PR that needs more than sixty words to summarize is doing too much and gets split. That constraint
-is the real mechanism; the rest is scaffolding around it.
+The one thing worth stating here, because it is the mechanism rather than the formatting: a PR that
+cannot be summarised in three sentences is doing too much and gets split. Everything else in the
+skill is scaffolding around that constraint.
 
 **The outline above is a courtesy for humans browsing this repo, not a second definition.** If it
 ever disagrees with the skill, the skill is correct and this paragraph is stale. Stating the
