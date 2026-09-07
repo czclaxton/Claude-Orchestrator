@@ -1,7 +1,7 @@
 {
   "name": "claude-orchestrator",
-  "version": "1.0.35",
-  "description": "Run your session as a full-time architect: it writes specs and verdicts and routes implementation across a three-rung Claude model ladder — Sonnet for routine work, Opus for judgment-heavy tasks, Fable for high-stakes one-offs — with a mandatory advisor review before anything ships.",
+  "version": "1.0.36",
+  "description": "Run your session as a full-time architect: it writes specs and verdicts and routes implementation across a three-rung Claude model ladder — Sonnet for routine work, Opus for judgment-heavy tasks, Fable for high-stakes one-offs — with a mandatory reviewer review before anything ships.",
   "author": {
     "name": "Connor Claxton",
     "url": "https://github.com/czclaxton"

@@ -1,17 +1,17 @@
 # Claude Orchestrator
 
-**Opus runs the show. Cheaper typing where it's safe, escalation where it matters, and an advisor review before anything ships.**
+**Opus runs the show. Cheaper typing where it's safe, escalation where it matters, and an reviewer review before anything ships.**
 
 > Unofficial personal tool. Not affiliated with or endorsed by Anthropic. "Claude", "Opus", "Sonnet", and "Fable" are Anthropic's model names, used here only to describe which model each lane runs on.
 
-Claude Code lets every subagent run on a different model — and lets the session itself run on a different model than its subagents. This plugin exploits that with the **architect pattern**: your session runs on **Opus**, acting as a full-time architect. It owns requirements, decomposition, specs, and verification — routes every implementation task to the cheapest lane adequate for it — and gets an **advisor** review of the finished work before calling anything done:
+Claude Code lets every subagent run on a different model — and lets the session itself run on a different model than its subagents. This plugin exploits that with the **architect pattern**: your session runs on **Opus**, acting as a full-time architect. It owns requirements, decomposition, specs, and verification — routes every implementation task to the cheapest lane adequate for it — and gets an **reviewer** review of the finished work before calling anything done:
 
 | Lane | Model | Invocation | Route here when |
 |---|---|---|---|
-| Routine | **Sonnet** | `routine-implementer` agent (default) | The spec fully determines the outcome — boilerplate, wiring, CRUD, mechanical edits |
-| Complex | **Opus** | `complex-implementer` agent | Judgment the spec can't capture decides the outcome, but a wrong call is cheap to catch: non-trivial algorithms, hard debugging, real design choices |
-| Critical | **Fable** | `critical-implementer` agent | That, **and** mistakes are expensive or hard to reverse: subtle concurrency, security-sensitive paths, data migrations, wide-blast-radius refactors |
-| Review | **Opus** | `advisor` agent | Commitment boundaries, and **always once at the end** — the advisor reviews the accumulated changes before the architect reports done. Raise this pin to Fable if your plan includes it |
+| Routine | **Sonnet** | `routine` agent (default) | The spec fully determines the outcome — boilerplate, wiring, CRUD, mechanical edits |
+| Complex | **Opus** | `complex` agent | Judgment the spec can't capture decides the outcome, but a wrong call is cheap to catch: non-trivial algorithms, hard debugging, real design choices |
+| Critical | **Fable** | `critical` agent | That, **and** mistakes are expensive or hard to reverse: subtle concurrency, security-sensitive paths, data migrations, wide-blast-radius refactors |
+| Review | **Opus** | `reviewer` agent | Commitment boundaries, and **always once at the end** — the reviewer reviews the accumulated changes before the architect reports done. Raise this pin to Fable if your plan includes it |
 
 Tokens route by stakes: Opus emits judgment and specs, Sonnet emits the bulk of the mechanical code, Opus itself absorbs judgment calls that don't carry real risk, and Fable — the most expensive model available — is spent only where it changes outcomes: the highest-stakes implementations. The final review defaults to Opus so the pattern costs nothing extra on any plan; raise it to Fable if yours includes it.
 
@@ -57,7 +57,7 @@ Then start your session as the architect:
 
 ## Requirements
 
-- **Claude Code**, with access to at least one Claude model. The plugin maps **roles to models**, not to subscription plans: each lane names the model it wants, and you point it at whatever your account actually offers. Mix them however suits the work — a cheap model for mechanical tasks, a stronger one for judgment, whatever combination you have. The shipped defaults land on models most accounts include; only `critical-implementer` asks for Fable, and that is a deliberate one-off escalation rather than a lane you reach by default. Check what your account offers and set the pins in `agents/*.md` accordingly.
+- **Claude Code**, with access to at least one Claude model. The plugin maps **roles to models**, not to subscription plans: each lane names the model it wants, and you point it at whatever your account actually offers. Mix them however suits the work — a cheap model for mechanical tasks, a stronger one for judgment, whatever combination you have. The shipped defaults land on models most accounts include; only `critical` asks for Fable, and that is a deliberate one-off escalation rather than a lane you reach by default. Check what your account offers and set the pins in `agents/*.md` accordingly.
 - Heads-up: if a pinned Claude model isn't available on your account, Claude Code silently falls back to your session model — the pattern degrades quietly rather than erroring. If results feel unremarkable, check your plan and the pins in `agents/*.md`.
 - Heads-up, separately: a global `"model": "opusplan"` setting in `~/.claude/settings.json` (Opus while planning, Sonnet during execution) silently demotes the architect to Sonnet the moment it starts delegating — the exact opposite of what this pattern assumes. Use a plain `"model": "opus"` instead if you're running this plugin.
 
@@ -74,7 +74,7 @@ Add rate limiting to our public API. Design it, delegate the
 implementation, and verify the evidence before you call it done.
 ```
 
-The architect writes the spec, picks the lane (rate limiting touches concurrency — a good case for `critical-implementer`, or `complex-implementer` if the blast radius is contained), reads the diff and verification evidence when the report comes back, sends the finished work to `advisor` for the final review, and only then reports done.
+The architect writes the spec, picks the lane (rate limiting touches concurrency — a good case for `critical`, or `complex` if the blast radius is contained), reads the diff and verification evidence when the report comes back, sends the finished work to `reviewer` for the final review, and only then reports done.
 
 To make the doctrine always-on, add one line to your project's `CLAUDE.md`:
 
@@ -83,7 +83,7 @@ You are the architect — minimize your own token volume. Delegate all
 implementation through the orchestration skill's routing table (never
 type code yourself), delegate broad codebase exploration to cheap
 read-only agents, verify evidence before accepting any lane's report,
-and get an advisor review before reporting any deliverable done.
+and get an reviewer review before reporting any deliverable done.
 ```
 
 ## Starting and ending a session: /wrap-up and /catch-up
@@ -108,7 +108,7 @@ create or delete that file by hand if you prefer.
 
 ## Commitment boundaries and the final review
 
-Even the architect gets a second opinion. The `advisor` agent is a read-only skeptic — consulted before architecture decisions, migrations, API designs, whenever a problem has resisted two attempts, and **always once at the end of a deliverable**, where it reads the accumulated diff with fresh eyes, against the stated goal rather than the conversation, and returns ship / fix-first / rethink. It never implements. One honest limit: every lane here is a Claude model, so this is a fresh-context check, not an independent-model one — it catches assumptions the session accumulated, not blind spots the whole family shares.
+Even the architect gets a second opinion. The `reviewer` agent is a read-only skeptic — consulted before architecture decisions, migrations, API designs, whenever a problem has resisted two attempts, and **always once at the end of a deliverable**, where it reads the accumulated diff with fresh eyes, against the stated goal rather than the conversation, and returns ship / fix-first / rethink. It never implements. One honest limit: every lane here is a Claude model, so this is a fresh-context check, not an independent-model one — it catches assumptions the session accumulated, not blind spots the whole family shares.
 
 ## Choosing your models
 
@@ -116,11 +116,11 @@ The plugin assigns **roles**, not plans. Each lane names the model it wants, and
 model fills each role — mix them however suits your work and whatever your account offers.
 
 The shipped defaults are chosen so that every lane the router lands in on its own runs on a model
-most accounts include. The `advisor` review runs on every deliverable, so it defaults to Opus rather
+most accounts include. The `reviewer` review runs on every deliverable, so it defaults to Opus rather
 than the most expensive model available: a mandatory step should not carry a premium charge.
-`critical-implementer` is the exception — it asks for Fable deliberately, as a one-off escalation for
+`critical` is the exception — it asks for Fable deliberately, as a one-off escalation for
 work that is both judgment-heavy and expensive to get wrong, never a lane the router reaches by
-itself. If that model costs you extra, reserve it or route those tasks to `complex-implementer`
+itself. If that model costs you extra, reserve it or route those tasks to `complex`
 instead.
 
 **To change any assignment,** edit the `model:` line in the relevant file under `agents/`:
@@ -129,7 +129,7 @@ instead.
 model: fable
 ```
 
-If your account includes a stronger model than a default assumes, raising the `advisor` pin is the
+If your account includes a stronger model than a default assumes, raising the `reviewer` pin is the
 single highest-value change — it is the one lane that runs on every deliverable.
 
 **One rough edge, stated plainly:** the copy of `agents/*.md` your sessions actually load lives in
