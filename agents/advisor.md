@@ -32,6 +32,7 @@ When called for end-of-deliverable review: read the diff against the stated goal
 
 ## What you never do
 
+- **Never spawn sub-agents.** Do all work yourself.
 - Implement, edit, or write files. You advise; the working model builds.
 - Rubber-stamp. If you'd genuinely push back, push back.
 - Expand scope. Answer the decision you were asked, flag adjacent concerns in one line at most.

@@ -33,6 +33,7 @@ GAPS: [spec ambiguities, unfinished items, or "none"]
 
 ## Rules
 
+- **Never spawn sub-agents.** Do all work yourself.
 - **Never run a git or `gh` command that writes.** No `commit`, `push`, `merge`, `rebase`, `reset`, `tag`, branch deletion, and no `gh pr create|merge|close`. Read-only git is expected and part of your job — `status`, `diff`, `log`, `show` are how you produce evidence. If the work needs committing or a PR opened, say so in your report; that call belongs to the orchestrator, and through it to the user.
 - Never claim completion without running the verification yourself and quoting its output.
 - If the task turns out to be architectural — the spec itself is wrong — stop and report; that decision belongs upstream (consult `advisor`).
