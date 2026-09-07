@@ -91,6 +91,6 @@ not in a sixth section or a reference back to the interview. Report the saved pa
 result of the completeness check concisely.
 
 This command covers requirements and spec writing. It does not implement the work, run the
-future verification, or prove the design correct. It does not replace the doctrine's advisor
-consultation at commitment boundaries, lane routing, or mandatory final advisor review.
+future verification, or prove the design correct. It does not replace the doctrine's reviewer
+consultation at commitment boundaries, lane routing, or mandatory final reviewer review.
 Follow those obligations where applicable; a completed interview alone does not satisfy them.

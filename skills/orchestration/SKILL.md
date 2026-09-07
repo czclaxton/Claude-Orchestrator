@@ -1,11 +1,11 @@
 ---
 name: orchestration
-description: Routing doctrine for the architect-as-orchestrator pattern — how an Opus session delegates work across a three-rung Claude model ladder (routine, complex, critical), and gets every deliverable reviewed by the advisor before reporting done. USE WHEN delegating implementation work, choosing between routine-implementer/complex-implementer/critical-implementer, writing a spec for a subagent, deciding whether to consult the advisor, managing session cost or token spend, or running any multi-task build where the session is the architect.
+description: Routing doctrine for the architect-as-orchestrator pattern — how an Opus session delegates work across a three-rung Claude model ladder (routine, complex, critical), and gets every deliverable reviewed by the reviewer before reporting done. USE WHEN delegating implementation work, choosing between routine/complex/critical, writing a spec for a subagent, deciding whether to consult the reviewer, managing session cost or token spend, or running any multi-task build where the session is the architect.
 ---
 
 # Orchestration — the architect's routing doctrine
 
-The session is the architect: it owns requirements, architecture, decomposition, specs, routing, and verification. It should almost never type implementation code. Every implementation task gets routed to the cheapest lane that is adequate for it — escalation up the ladder is deliberate, per task, never a fixed binding — and every finished deliverable gets an advisor review before the architect reports done.
+The session is the architect: it owns requirements, architecture, decomposition, specs, routing, and verification. It should almost never type implementation code. Every implementation task gets routed to the cheapest lane that is adequate for it — escalation up the ladder is deliberate, per task, never a fixed binding — and every finished deliverable gets an reviewer review before the architect reports done.
 
 ## Cost discipline — the prime directive
 
@@ -23,25 +23,25 @@ What stays with the architect regardless of cost: decomposition, interface desig
 
 | Lane | Model | Invoke | Route here when |
 |---|---|---|---|
-| Routine | Sonnet | `routine-implementer` agent | The spec fully determines the outcome: boilerplate, wiring, CRUD, mechanical edits, straightforward features. **Default lane.** |
-| Complex | Opus | `complex-implementer` agent | The outcome needs judgment the spec can't capture — non-trivial algorithms, hard debugging, real design choices — but a wrong call is cheap to catch and correct. |
-| Critical | Fable | `critical-implementer` agent | That, **and** mistakes are expensive or hard to reverse: subtle concurrency, security-sensitive paths, data migrations, wide-blast-radius refactors. One-off escalations, never the default. |
-| Review | Opus | `advisor` agent | Not an implementation lane. Commitment boundaries and the mandatory end-of-deliverable review — see below. Pinned to Opus so the mandatory review costs nothing extra on any plan. |
+| Routine | Sonnet | `routine` agent | The spec fully determines the outcome: boilerplate, wiring, CRUD, mechanical edits, straightforward features. **Default lane.** |
+| Complex | Opus | `complex` agent | The outcome needs judgment the spec can't capture — non-trivial algorithms, hard debugging, real design choices — but a wrong call is cheap to catch and correct. |
+| Critical | Fable | `critical` agent | That, **and** mistakes are expensive or hard to reverse: subtle concurrency, security-sensitive paths, data migrations, wide-blast-radius refactors. One-off escalations, never the default. |
+| Review | Opus | `reviewer` agent | Not an implementation lane. Commitment boundaries and the mandatory end-of-deliverable review — see below. Pinned to Opus so the mandatory review costs nothing extra on any plan. |
 
 Deciding rule: two questions, in order.
 
-1. **Does the spec fully determine the outcome?** Yes → `routine-implementer`; you will verify anyway. No → judgment is required, go to question 2.
-2. **Are mistakes here expensive or hard to reverse?** No → `complex-implementer`. Yes → `critical-implementer`.
+1. **Does the spec fully determine the outcome?** Yes → `routine`; you will verify anyway. No → judgment is required, go to question 2.
+2. **Are mistakes here expensive or hard to reverse?** No → `complex`. Yes → `critical`.
 
 A lane that fails its spec once gets a corrected spec; twice, it escalates one rung — repetition is evidence the task was misclassified, not that the lane needs to try harder.
 
 ## Plan tiers
 
-The default pins are chosen so every lane the router lands in on its own runs on a model any current plan includes. The advisor review is mandatory on every deliverable, so it is pinned to Opus rather than Fable — a Fable pin would bill per deliverable on Pro, where Fable runs on pay-as-you-go credits.
+The default pins are chosen so every lane the router lands in on its own runs on a model any current plan includes. The reviewer review is mandatory on every deliverable, so it is pinned to Opus rather than Fable — a Fable pin would bill per deliverable on Pro, where Fable runs on pay-as-you-go credits.
 
-`critical-implementer` remains pinned to Fable. That is a deliberate one-off escalation, not a lane reached by default, and on Pro it will bill when used. If the user is on Pro and cost-sensitive, treat `complex-implementer` as the effective top rung and say so rather than escalating silently.
+`critical` remains pinned to Fable. That is a deliberate one-off escalation, not a lane reached by default, and on Pro it will bill when used. If the user is on Pro and cost-sensitive, treat `complex` as the effective top rung and say so rather than escalating silently.
 
-On a plan that includes Fable, the advisor pin can be raised to `model: fable` in `agents/advisor.md`. Same routing table either way; only the ceiling moves.
+On a plan that includes Fable, the reviewer pin can be raised to `model: fable` in `agents/reviewer.md`. Same routing table either way; only the ceiling moves.
 
 ## Planning phase — before any spec gets written
 
@@ -116,15 +116,15 @@ Independent specs (no shared files, no ordering dependency) launch as parallel a
 
 ## Commitment boundaries and the final review
 
-Consult `advisor` (read-only, verdict in under 300 words) at the moments that decide whether the next hour is wasted:
+Consult `reviewer` (read-only, verdict in under 300 words) at the moments that decide whether the next hour is wasted:
 
 - Before committing to an architecture, data migration, API shape, or refactor strategy
 - Whenever the same problem has resisted two distinct attempts
-- **Always, once, at the end of a deliverable** — the advisor reads the accumulated changes with fresh eyes, against the stated goal rather than the conversation, and returns ship / fix-first / rethink. The architect does not report done before this review.
+- **Always, once, at the end of a deliverable** — the reviewer reads the accumulated changes with fresh eyes, against the stated goal rather than the conversation, and returns ship / fix-first / rethink. The architect does not report done before this review.
 
 Pass it the decision (or, for final review, the diff and the stated goal), the constraints, and the options considered. Act on the verdict or surface the disagreement — never silently ignore it.
 
-One honest caveat, and it applies across the whole ladder: every lane in this pattern, including the advisor, is a Claude model. The final review is a genuinely useful check — it reads the diff in a clean context, against the goal rather than the conversation, free of the assumptions that accumulate over a long session — but it is a fresh-eyes check, never an independent-model one. Don't describe it as cross-vendor or model-diverse review; it isn't, and treating it as more independent than it is would make the review's blind spots invisible.
+One honest caveat, and it applies across the whole ladder: every lane in this pattern, including the reviewer, is a Claude model. The final review is a genuinely useful check — it reads the diff in a clean context, against the goal rather than the conversation, free of the assumptions that accumulate over a long session — but it is a fresh-eyes check, never an independent-model one. Don't describe it as cross-vendor or model-diverse review; it isn't, and treating it as more independent than it is would make the review's blind spots invisible.
 
 ## Verification
 

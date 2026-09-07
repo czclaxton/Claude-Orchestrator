@@ -182,8 +182,8 @@ PYEOF
 )"
 report "routing tables disagree with the agent files:" "$pins_out"
 
-# ----------------------------------------------- 5. advisor model named in prose
-head_ "5. no shipped file names a model for the advisor that contradicts its pin"
+# ----------------------------------------------- 5. reviewer model named in prose
+head_ "5. no shipped file names a model for the reviewer that contradicts its pin"
 prose_out="$("$PY" - <<'PYEOF' 2>&1
 import glob, re
 try:
@@ -191,18 +191,18 @@ try:
 except ImportError:
     print("SKIP pyyaml not installed"); raise SystemExit
 
-text = open('agents/advisor.md', encoding='utf-8').read()
+text = open('agents/reviewer.md', encoding='utf-8').read()
 try:
     pin = str(yaml.safe_load(text[3:text.find('\n---', 3)])['model']).lower()
 except Exception:
-    print("SKIP advisor.md frontmatter unreadable - check 1 owns this"); raise SystemExit
+    print("SKIP reviewer.md frontmatter unreadable - check 1 owns this"); raise SystemExit
 
 files = (['README.md', 'CONTRIBUTING.md']
          + sorted(glob.glob('agents/*.md'))
          + sorted(glob.glob('commands/*.md'))
          + sorted(glob.glob('skills/*/SKILL.md'))
          + sorted(glob.glob('.claude-plugin/*.json')))
-pat = re.compile(r'\b(sonnet|opus|fable)[- ]+(?:powered\s+)?advisor\b', re.I)
+pat = re.compile(r'\b(sonnet|opus|fable)[- ]+(?:powered\s+)?reviewer\b', re.I)
 hits = 0
 for f in files:
     try:
@@ -213,13 +213,13 @@ for f in files:
         for m in pat.finditer(line):
             if m.group(1).lower() != pin:
                 hits += 1
-                print("ERR %s:%d says %r advisor, but agents/advisor.md pins %r"
+                print("ERR %s:%d says %r reviewer, but agents/reviewer.md pins %r"
                       % (f, ln, m.group(1).lower(), pin))
-print("INFO advisor pinned to %r; no shipped file contradicts it "
+print("INFO reviewer pinned to %r; no shipped file contradicts it "
       "(%d contradicting mention(s))" % (pin, hits))
 PYEOF
 )"
-report "a shipped file advertises the wrong advisor model:" "$prose_out"
+report "a shipped file advertises the wrong reviewer model:" "$prose_out"
 
 # --------------------------------------------- 6. PR format defined exactly once
 head_ "6. the PR body format is defined only in skills/pr-format/SKILL.md"

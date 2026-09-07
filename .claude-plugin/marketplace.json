@@ -1,7 +1,7 @@
 {
   "name": "claude-orchestrator",
   "metadata": {
-    "description": "A three-rung Claude model ladder for Claude Code: Opus architect-as-orchestrator routing routine work to Sonnet, judgment-heavy tasks to Opus, and high-stakes one-offs to Fable, with a mandatory advisor review before anything ships."
+    "description": "A three-rung Claude model ladder for Claude Code: Opus architect-as-orchestrator routing routine work to Sonnet, judgment-heavy tasks to Opus, and high-stakes one-offs to Fable, with a mandatory reviewer review before anything ships."
   },
   "owner": {
     "name": "Connor Claxton",
@@ -11,7 +11,7 @@
     {
       "name": "claude-orchestrator",
       "source": "./",
-      "description": "Opus architect-as-orchestrator: your session writes specs and verdicts, routing routine implementation to Sonnet, judgment-heavy one-offs to Opus, and high-stakes work to Fable — with a mandatory advisor review before anything ships."
+      "description": "Opus architect-as-orchestrator: your session writes specs and verdicts, routing routine implementation to Sonnet, judgment-heavy one-offs to Opus, and high-stakes work to Fable — with a mandatory reviewer review before anything ships."
     }
   ]
 }

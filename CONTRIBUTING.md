@@ -55,7 +55,7 @@ claude plugin validate ./commands
 claude plugin validate ./skills
 ```
 
-This is not hypothetical. `agents/routine-implementer.md` shipped for months with a description
+This is not hypothetical. `agents/routine.md` shipped for months with a description
 containing an unquoted `: ` — YAML's most common failure — so its **entire frontmatter block failed
 to parse**. Name, description, `model` and `tools` all fell back to defaults. The consequences were
 invisible from anywhere except a session's own agent listing: the cheapest and most-used lane ran
@@ -65,7 +65,7 @@ inherited the session model instead.
 
 That last symptom was diagnosed across several sessions as a Claude Code regression, and a feedback
 report was filed with Anthropic about it. It was this file. A single controlled dispatch settled it:
-`critical-implementer`, whose frontmatter parses, resolved its `model: fable` pin correctly with no
+`critical`, whose frontmatter parses, resolved its `model: fable` pin correctly with no
 override on the same CLI version in the same session.
 
 **Never put an unquoted `: ` inside a frontmatter value.** Use an em dash, or quote the whole value —
@@ -102,11 +102,11 @@ gate — the user opens one when a claim looks off, rather than reading all of t
 The user is not just the approver — they are the only signal in this loop that no model here can produce.
 Three reasons, all evidenced rather than assumed:
 
-- Every lane, including the advisor, is a Claude model. The advisor is a fresh-eyes check, never an
+- Every lane, including the reviewer, is a Claude model. The reviewer is a fresh-eyes check, never an
   independent one. Published work on self-preference bias is about a model reviewing *its own*
   generations, which the Opus-writes/Fable-reviews split does avoid — but same-family review is not
   independence, and the case this project actually occupies is not addressed in the literature at all.
-- Twice now the advisor has reasoned correctly inside constraints that were never actually binding.
+- Twice now the reviewer has reasoned correctly inside constraints that were never actually binding.
   Only the human can say a premise is not real. That failure is invisible from inside the system.
 - Measured results on trained code critics put **human + critic** ahead of critic alone: critics catch
   real bugs *and* hallucinate plausible ones, and the human is what separates the two.
@@ -123,7 +123,7 @@ filter standing between a change and the human is a filter on the one input the 
 provide, and the failure mode is silent by construction.
 
 The problem auto-close appeared to solve does not need solving at the PR layer: **a PR is only opened
-once its claim has survived the replay and the advisor pass.** If the replay disproves the fix's own
+once its claim has survived the replay and the reviewer pass.** If the replay disproves the fix's own
 stated claim, it gets fixed or abandoned *before* becoming a PR. A known-broken change should never
 reach them in the first place, closed or otherwise.
 
@@ -133,7 +133,7 @@ it was dropped. Not for approval; so that work disappearing before the PR layer 
 Every PR is therefore one of two buckets, decided before it is opened:
 
 **`[decide]` — debatable.** The test is whether a reasonable person could choose differently: a real
-tradeoff, an unresolved advisor disagreement, a choice that forecloses a future option, or a change
+tradeoff, an unresolved reviewer disagreement, a choice that forecloses a future option, or a change
 resting on an assumption about what they want.
 
 **`[skim]` — a slam dunk.** There is a clearly correct answer, it is implemented, and the evidence is
@@ -198,7 +198,7 @@ This is a shortcut that saves them the question later, never an obligation: if t
 notes repo, and interviews only when there is something to learn:
 
 - **a rejection** (highest signal available: something was wrong and only they know what),
-- **an approval that overrides an advisor finding** (the advisor was wrong, or a premise was not
+- **an approval that overrides an reviewer finding** (the reviewer was wrong, or a premise was not
   binding),
 - **an approval where they edited something first** (the edit is the feedback).
 
