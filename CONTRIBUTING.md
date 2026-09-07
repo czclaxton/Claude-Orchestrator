@@ -71,8 +71,6 @@ override on the same CLI version in the same session.
 **Never put an unquoted `: ` inside a frontmatter value.** Use an em dash, or quote the whole value —
 and run the validator against `./agents` before every version bump, because nothing else catches it.
 
-## 4. Before you bump: review the open lessons.md PRs
-
 ## 4. Two repos, two different jobs — and only one of them is the user's
 
 The notes repo and the plugin repo carry different kinds of PR, and confusing them is what stalled
