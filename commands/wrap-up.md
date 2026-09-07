@@ -72,7 +72,13 @@ on — don't let it block the rest of this command.
 
 ## 3. Write a resume note for this project
 
-Write (overwrite, don't append) `RESUME-PROMPT.md` at the root of the current project — a process
+Read the existing `RESUME-PROMPT.md` at the root of the current project in full before updating it.
+Treat overwriting a handoff note as a merge, not a write. Carry every thread in the existing note
+forward, or state explicitly in the new note that it was deliberately closed. Never drop a thread
+silently. A second run in the same session updates the existing note with the work since the last
+run. Do not append everything or rewrite from memory. If no note exists, create one.
+
+Write the merged note to `RESUME-PROMPT.md` — a process
 artifact, not a deliverable. If this project is a git repository, make sure the file is excluded
 via `.git/info/exclude` (not `.gitignore` — that file stays reserved for the user's own concerns),
 adding it there if it isn't already present.
