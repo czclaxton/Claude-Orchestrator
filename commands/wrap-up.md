@@ -97,7 +97,14 @@ Write `~/.claude/orchestrator-wrapup-sentinel.json` with a timestamp, e.g.
 `{"wrapped_up_at": "<ISO-8601 timestamp>"}`. This is what lets the `SessionStart` hook confirm
 `/wrap-up` actually ran before the next `/clear`, instead of assuming it did.
 
-## 5. Tell the user to clear
+## 5. Run any handoff check the user's instructions require
+
+If the user's own instructions (global or project `CLAUDE.md`) ask for a check of the handoff note at
+wrap-up — a cold read, or a review by another agent or engine — run it now, against the note written
+in step 3, fix what it finds, and say in one line what ran. If their instructions allow skipping it,
+say "skipped" and why; never skip silently. If their instructions say nothing about it, skip this step.
+
+## 6. Tell the user to clear
 
 End your reply with exactly this, on its own line, so it's impossible to miss:
 

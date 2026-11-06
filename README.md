@@ -108,7 +108,7 @@ create or delete that file by hand if you prefer.
 
 ## Commitment boundaries and the final review
 
-Even the architect gets a second opinion. The `reviewer` agent is a read-only skeptic — consulted before architecture decisions, migrations, API designs, whenever a problem has resisted two attempts, and **always once at the end of a deliverable**, where it reads the accumulated diff with fresh eyes, against the stated goal rather than the conversation, and returns ship / fix-first / rethink. It never implements. One honest limit: every lane here is a Claude model, so this is a fresh-context check, not an independent-model one — it catches assumptions the session accumulated, not blind spots the whole family shares.
+Even the architect gets a second opinion. The `reviewer` agent is a read-only skeptic — consulted before architecture decisions, migrations, API designs, whenever a problem has resisted two attempts, and **always once at the end of a deliverable**, where it reads the accumulated diff with fresh eyes, against the stated goal rather than the conversation, and returns ship / fix-first / rethink. It never implements. One honest limit: every lane here is a Claude model, so this is a fresh-context check, not an independent-model one — it catches assumptions the session accumulated, not blind spots the whole family shares. If you also use another vendor's coding agent (Codex CLI, for example), name it and its role in your own `CLAUDE.md`: the architect will then run it as a second, independent reviewer beside this one, or hand it fully specified tasks, and announce each dispatch. See *External engines* in the orchestration skill.
 
 ## Choosing your models
 

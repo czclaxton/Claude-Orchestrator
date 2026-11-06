@@ -124,7 +124,16 @@ Consult `reviewer` (read-only, verdict in under 300 words) at the moments that d
 
 Pass it the decision (or, for final review, the diff and the stated goal), the constraints, and the options considered. Act on the verdict or surface the disagreement — never silently ignore it.
 
-One honest caveat, and it applies across the whole ladder: every lane in this pattern, including the reviewer, is a Claude model. The final review is a genuinely useful check — it reads the diff in a clean context, against the goal rather than the conversation, free of the assumptions that accumulate over a long session — but it is a fresh-eyes check, never an independent-model one. Don't describe it as cross-vendor or model-diverse review; it isn't, and treating it as more independent than it is would make the review's blind spots invisible.
+One honest caveat, and it applies across the whole ladder: every lane in this pattern, including the reviewer, is a Claude model. The final review is a genuinely useful check — it reads the diff in a clean context, against the goal rather than the conversation, free of the assumptions that accumulate over a long session — but it is a fresh-eyes check, not an independent-model one. Don't describe it as cross-vendor or model-diverse review unless an external engine actually reviewed alongside it (see *External engines* below); treating it as more independent than it is would make the review's blind spots invisible.
+
+## External engines (optional)
+
+With nothing else configured, the four Claude lanes above are the whole ladder and this section does nothing. Some users also run another vendor's coding agent from the command line (OpenAI's Codex CLI, for example) and want it used. **If the user's own instructions — their global or project `CLAUDE.md` — name an external engine and when to use it, follow them:** for the roles they name, that assignment takes precedence over the lane table. Two roles are open to an external engine:
+
+- **A review beside `reviewer`, never instead of it** — at a commitment boundary, at the end-of-deliverable review, or as a cold read of a handoff note. Give it the same brief and evidence `reviewer` gets, but not `reviewer`'s findings, so the two stay independent.
+- **Implementation from a complete five-part spec,** where the user's instructions assign that kind of task out. The spec contract applies unchanged, and so does *Verification* below: re-run its checks here, because its environment is not this one.
+
+The architect runs these dispatches itself; the lanes never spawn further agents. **Announce each dispatch in one line before it starts** ("Codex review on <model>/high"), so a session that skips the user's instruction is visible rather than silent. If the engine refuses to start, hits a usage limit or returns an empty report, say so and carry on with the Claude lanes. Never quietly substitute a Claude agent and describe the result as independent.
 
 ## Verification
 
