@@ -8,67 +8,290 @@ Prepare this session to be cleared. Do the following, in order.
 
 Check whether `~/.claude/orchestrator-testing.md` exists.
 
-**If it exists:** its first non-empty line is the absolute path to `lessons.md` in the private
-Claude-Orchestrator-Notes repo. **Note which branch that repo is on before you write anything** —
-it decides how step 2 proceeds. Review this session for friction or successes specifically about
-the **Claude Orchestrator plugin itself** (routing decisions, agent behavior, spec quality —
-not the substance of whatever project you were actually working in). Apply the same promotion bar
-already used in `lessons.md`: only log something that recurred, or was notable/severe enough to
-justify logging alone. Don't log routine, uneventful use.
-
-**Write your entries to a new file, not to `lessons.md`.** Create
-`pending-lessons/<YYYYMMDD-HHMMSS>-<short-kebab-slug-from-the-entry-heading>.md` alongside
-`lessons.md` in that repo, holding this session's entries in the same format `lessons.md` uses.
-Create the `pending-lessons/` directory if it does not exist.
-
-A separate file per sweep is the whole point. Every sweep used to append to the tail of one shared
-file, so every open PR conflicted with the last and none of them ever merged — fourteen of them, at
-one point, none merged in three weeks. Distinct files never collide, so these merge in any order.
-A later review session folds the pending entries into `lessons.md` with a status on each and
-deletes them; that collection step is where the reading happens, and the directory being non-empty
-is what says it is due.
-
-Two rules for the entries themselves, non-negotiable:
-- **Describe the orchestrator's behavior only, project-agnostically.** Never quote actual project
-  code, file paths, identifiers, or business logic from the project you were working in — that's
-  the real leak-prevention mechanism, not where the file happens to live.
-- Mark each entry **verified** (you re-ran or re-checked the thing) or **asserted** (you're
-  reporting an impression without re-checking) — this is the load-bearing field, more important
-  than which project it came from.
-
 **If it doesn't exist:** skip this step entirely. Testing mode is off; there's nothing to sweep.
 
-## 2. Open a PR for the pending-lessons file, if you wrote one
+**If it exists:** its first non-empty line is the absolute path to `lessons.md`. It is valid if
+it is absolute and its parent directory exists; `lessons.md` itself need not exist. If the config
+is empty, invalid, or unreadable, report the problem and continue at step 3; don't invent a path.
+Call that parent directory the **Notes directory**; write `records/` beside the configured file.
+Find its containing **Notes repo** with `git -C "$notes_dir" rev-parse --show-toplevel`; the Notes
+directory need not be the git root. **Note its branch before writing anything** (including detached
+HEAD). If there is no git repo or remote, still write eligible records, skip committing, and report
+the saved files. Use a private, dedicated Notes repo: testing mode authorizes direct default-branch
+pushes, including on existing installations; it does not open lesson PRs.
 
-Only do this if step 1 actually wrote a fragment — skip entirely if testing mode was off or nothing
-cleared the promotion bar.
+Review this session for friction or successes specifically about the **Claude Orchestrator plugin
+itself** (routing decisions, agent behavior, spec quality). Describe the orchestrator's behavior,
+project-agnostically; omit the project's substance, identifiers, and business logic. Only log
+something that recurred, or was notable/severe enough to justify logging alone. Don't log routine,
+uneventful use.
 
-**A new file cannot conflict with anything, so there is no dirty-tree check here.** The file you are
-committing did not exist a moment ago: no other session has edited it, no other branch touches it,
-and staging it by path cannot pick up anything else. Other dirty or untracked files in that repo are
-irrelevant and never a reason to abort.
+### Receipts and anonymization
 
-**If the repo is not on its default branch:** don't create a branch or open a PR. Leave the fragment
-in place and tell the user plainly that an unexpected branch stopped you — only a human can say
-where that work belongs.
+**No receipt, no record.** Each finding needs evidence a later reader can use to confirm the claim:
 
-**Otherwise:** in the Claude-Orchestrator-Notes repo (not this one), note its current branch first
-so you can switch back at the end. Then:
+- The exact command or action and the output showing the result, excerpted and anonymized.
+- Before/after artifact text, or a quoted line with an explanation of what was wrong.
+- Counts together with how they were counted.
+- A persistent public source (URL or public-repo commit), with what it shows.
 
-1. Create a new branch off its default branch, named `lessons/<same-timestamp-and-slug-as-the-file>`.
-2. Stage and commit **only the one file you wrote** — never `git add -A`, and never touch
-   `lessons.md`. Write a plain commit message describing what was logged.
-3. Push the branch and open a PR against the repo's default branch (`gh pr create`). **Write the PR
-   body using the `pr-format` skill** — use its lessons-entry variant. That skill is the only
-   definition of this project's PR format; do not restate or summarize it here.
-4. Switch back to whatever branch the repo was on before step 1.
+Embed the evidence itself or the persistent public source in `receipt`. Saying "verified",
+"confirmed", or "I checked" is not evidence. A session ID, private link, or local log pointer
+is not a receipt. If evidence cannot be retained safely, skip the finding. Count findings dropped
+for lack of a safe receipt and report that count (including zero) in the wrap-up reply.
 
-**Do not merge this PR now.** Merging a fragment PR is filing, not judgment — it moves the file onto
-the default branch, still pending, still unread. The judgment happens at a review session, over the
-`pending-lessons/` directory.
+Anonymize the whole record, including receipts and prose, while keeping the mechanism visible:
+project names → `[project]`; client/company names → `[client]`; people → their role (e.g.
+`[developer]` or `[user]`); file paths → `[path]/<basename>` only when the basename matters and is
+safe, otherwise `[path]`; private-system URLs → `[private-url]`. Include no session IDs, actual
+project paths, or secrets. Keep command and code shapes only as minimal anonymized excerpts needed
+to show the orchestrator's behavior; do not copy project code or substance. Public-source URLs may
+remain only if they disclose no private context.
 
-If branch creation, commit, push, or PR creation fails for any reason, report it plainly and move
-on — don't let it block the rest of this command.
+### Record format
+
+Search existing `records/` first, using headings and `class`, and read likely matches for the same
+mechanism. Also consult legacy `pending-lessons/` fragments and `lessons.md` where relevant; leave
+them unchanged. A repeat with nothing new is an `occurrence`, linked to the earlier ID or legacy
+fragment filename. A finding with new information is `new`; link a related earlier record when
+applicable, otherwise use `recurrence_of: none`. Each repeat still needs its own receipt.
+
+If no finding clears the bar with a safe receipt, write no new file; still run step 2 to recover
+earlier pending records. Otherwise, write one new `records/<YYYYMMDD-HHMMSS>.md` per wrap-up,
+containing one or more records. Use **UTC** for the filename timestamp and each record's date;
+the timestamp in every ID must equal its containing file's timestamp. Create
+`records/` if needed; never overwrite an existing file (choose a fresh timestamp on collision).
+Use a short, generic level-four Markdown heading (`####`) per record, then a fenced YAML block
+followed by at most five lines of prose: what happened, what it cost, what would have prevented it.
+Never append to `lessons.md`. The fields for a `new` record are:
+
+| Field | Value / rule |
+|---|---|
+| `id`, `date`, `kind` | `L-<YYYYMMDD-HHMMSS>-<n>` (stable, never reused; n starts at 1), `YYYY-MM-DD`, `new` or `occurrence` |
+| `recurrence_of` | Earlier record ID, legacy fragment filename, or `none` |
+| `class` | One class from the fixed list below, or `other: <name>` (quote this YAML value) |
+| `polarity`, `severity` | `failure` / `success`; `low` / `medium` / `high` (high = wrong result reached the user, or work lost) |
+| `caught_by` | `user` / `reviewer` / `cross-family` / `self` / `check` / `luck` / `not-caught` |
+| `cost` | Rough minutes or rework rounds |
+| `engines` | Quoted comma-separated string of `provider-model (effort)` entries, e.g. `"provider-model (high), provider-model (unknown)"`; `unknown` if unavailable |
+| `module` | The v2 module this informs: `Interviewer`, `Planner`, `Orchestrator`, `Router`, `Workers`, `Reviewer`, `Scribe`, `Maintenance`, `Auditor`, `Human`, `Docs`, `Other`; use `Other` if unsure |
+| `receipt` | Required evidence as above; use a YAML block scalar for multiline excerpts |
+| `refutes`, `refuted_by` | Earlier/later record ID, or `none`; link claims shown false |
+
+An **`occurrence`** contains only `id`, `date`, `kind: occurrence`, `recurrence_of`, `receipt`,
+`caught_by`, and one-line `what_differs` (`nothing` is allowed). Do not repeat the full narrative.
+For a refutation, the new record's `refutes` is authoritative. Set the earlier record's
+`refuted_by` too if it is in this same new file; otherwise report its ID for the periodic audit
+to fill in the backlink. Do not edit or stage older files in this sweep. A missing `refuted_by`
+backlink does not invalidate a refutation.
+
+Fixed classes: `false-success` (exit 0 / empty / inert check), `brief-carries-false-fact`,
+`report-overclaims`, `handoff-lost-or-wrong`, `scope-or-permission-mismatch`, `routing-wrong-lane`,
+`review-missed-defect`, `review-caught-defect`, `stale-state-or-fact`, `concurrency-conflict`,
+`tooling-or-harness-fault`, `user-correction`, plus `other: <name>`. Only a periodic audit extends
+the fixed list.
+
+Two invented, generic examples from separate files: the first in `records/20260102-100000.md`,
+the occurrence in `records/20260103-110000.md` refers to it:
+
+#### Empty check reported as a pass
+
+```yaml
+id: L-20260102-100000-1
+date: 2026-01-02
+kind: new
+recurrence_of: none
+class: false-success
+polarity: failure
+severity: medium
+caught_by: reviewer
+cost: 5 minutes
+engines: unknown
+module: Reviewer
+receipt: |
+  Command: check-runner --path [path]
+  Output: "0 tests collected; exit 0". Report: "All tests passed."
+refutes: none
+refuted_by: none
+```
+The orchestrator treated an empty check as proof. Rework took five minutes; require a test count.
+
+#### Empty check repeated
+
+```yaml
+id: L-20260103-110000-1
+date: 2026-01-03
+kind: occurrence
+recurrence_of: L-20260102-100000-1
+receipt: |
+  Command: check-runner --path [path]
+  Output: "0 tests collected; exit 0". Report: "All tests passed."
+caught_by: self
+what_differs: Self caught the empty check before the final report.
+```
+
+## 2. Recover pending records, scan, commit, and push
+
+Work in the **Notes repo**, never the current project's repo. At the start, discover earlier
+untracked `records/<YYYYMMDD-HHMMSS>.md` files beside the configured `lessons.md`, as well as the
+new file (if any). Validate their record format and receipts, and process each independently;
+do not adopt modifications to tracked records. Also discover unpushed record commits below.
+Do this even if step 1 wrote nothing. Skip only when there is no pending work.
+
+For Git operations, work from the containing git root. Set `record_path` to the exact
+repository-relative path of the file being processed, and `scan_terms` to the repository-relative
+path of the Notes directory's `records/.scan-terms` (these may include a subdirectory prefix).
+If there is no repo, leave the files saved and report that committing was skipped.
+
+### Scan each file in full
+
+Before first use, ask the user to create the private `records/.scan-terms` beside their records,
+with one client/project name per line. Never invent its contents, print them, or add this list to
+the public plugin. An absent list skips only the term scan and must be reported as
+`term scan not run: no list`. Do not block the remaining secret/identifier scans on that absence.
+
+Run this exact **Bash + Node** command after setting `record_path` and `scan_terms` as above.
+It reads UTF-8 and BOM-marked UTF-16 LE/BE, strips BOMs/CRs and surrounding term whitespace,
+reports the effective term count to stderr, and searches terms as case-insensitive literal
+substrings. A nonempty list yielding zero terms, invalid encoding, or any read error fails the
+scan. Stdout contains matching **line numbers only** (one per line); stderr contains only safe
+status messages. Exit codes: 0 = clean, 1 = hits, 2 = failed/incomplete scan.
+
+```bash
+node - "$record_path" "$scan_terms" <<'NODE'
+const fs = require('fs');
+const { TextDecoder } = require('util');
+function readText(path) {
+  const bytes = fs.readFileSync(path);
+  let encoding = 'utf-8';
+  if (bytes[0] === 0xff && bytes[1] === 0xfe) encoding = 'utf-16le';
+  if (bytes[0] === 0xfe && bytes[1] === 0xff) encoding = 'utf-16be';
+  const text = new TextDecoder(encoding, { fatal: true }).decode(bytes);
+  if (text.includes('\0')) throw new Error('encoding');
+  return { text: text.replace(/^\uFEFF/, ''), size: bytes.length };
+}
+try {
+  const [file, list] = process.argv.slice(2);
+  if (!file || !list) throw new Error('arguments');
+  const record = readText(file).text;
+  let terms = [];
+  try {
+    const source = readText(list);
+    terms = source.text.split(/\r\n|\n|\r/).map(s => s.replace(/\uFEFF/g, '').trim())
+      .filter(Boolean).map(s => s.toLowerCase());
+    if (source.size > 0 && terms.length === 0) throw new Error('empty terms');
+    console.error(`term count: ${terms.length}`);
+  } catch (error) {
+    if (error.code !== 'ENOENT') throw error;
+    console.error('term scan not run: no list');
+  }
+  const patterns = [
+    /\bsk-(?:[a-z]+-)?[a-z0-9_-]{12,}/i,
+    /\b(?:AKIA|ASIA)[A-Z0-9]{16}\b/i,
+    /\b(?:gh[pousr]_[a-z0-9]{20,}|github_pat_[a-z0-9_]{20,})/i,
+    /\b(?:xox[baprs]-[a-z0-9-]{10,}|AIza[a-z0-9_-]{30,})/i,
+    /-----BEGIN (?:[A-Z0-9]+ )*(?:PRIVATE KEY|PGP PRIVATE KEY BLOCK)-----/i,
+    /\b(?:api[_-]?key|access[_-]?token|token|secret|password)\b["']?\s*[:=]\s*["']?[a-z0-9_+/.=-]{16,}/i,
+    /\b[a-z][a-z0-9+.-]*:\/\/[^\s/:@\[\]]+:[^\s@/\[\]]+@/i,
+    /\b[A-Z]:[\\/][^\s<>"'`]+/i,
+    /\\\\[^\s\\]+\\[^\s]+/,
+    /(?:^|[\s("'`=])(?:~\/|\/(?!\/))[a-z0-9_.~-]+(?:\/[^\s<>"'`]*)?/i,
+    /\b[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}\b/i,
+    /\b[a-z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-z0-9-]+(?:\.[a-z0-9-]+)+\b/i
+  ];
+  const hits = [];
+  record.split(/\r\n|\n|\r/).forEach((line, index) => {
+    const lower = line.toLowerCase();
+    if (terms.some(term => lower.includes(term)) || patterns.some(p => p.test(line))) {
+      hits.push(index + 1);
+    }
+  });
+  for (const line of hits) console.log(line);
+  console.error(hits.length ? 'scan stopped: flagged lines' : 'scan clean');
+  process.exitCode = hits.length ? 1 : 0;
+} catch (_) {
+  console.error('scan failed: unreadable input, invalid encoding, or unusable term list');
+  process.exitCode = 2;
+}
+NODE
+```
+
+This also flags common API keys, private-key headers, credential assignments and URL passwords,
+absolute paths (including home-relative paths), UUID-shaped IDs, and email addresses. Placeholders
+such as `[path]` and `[secret]` are not credentials. This heuristic can miss unusual secrets,
+identifiers, split tokens, and names absent from the list, and can flag innocent text. Manually
+review anonymization and the whole receipt too; a clean scan is not proof that publication is safe.
+
+**On any hit: stop that file's automatic commit/push.** Show only its matching line numbers and
+ask the user to resolve them. Leave it in place and continue other safe work and steps 3 onward
+without waiting. Only an explicit **yes for the specific flagged lines** can authorize retaining
+a false positive; no response is not approval. Actual secrets/private identifiers must be removed.
+A failed/incomplete scan cannot be waived. After any edit or on a later retry, scan the full final
+contents again; never silently override a hit. A blocked untracked file does not stop a clean file;
+a blocked committed record stops pushing every commit that would publish it.
+
+### Synchronize and guard the outgoing history
+
+1. Determine the intended remote and its actual default branch with
+   `git ls-remote --symref "$remote" HEAD` (use `origin` only if it is the intended remote;
+   stop if ambiguous). Do not assume a branch name or trust a cached default ref. If discovery
+   fails, leave files uncommitted and report why. **If the repo was not on this default branch
+   in step 1, or is no longer on it**, leave files in place; report the unexpected branch or
+   detached HEAD. Do not switch branches or create a worktree.
+2. Fetch before committing: `git fetch "$remote" "refs/heads/$default"`, then capture
+   `remote_tip=$(git rev-parse FETCH_HEAD)`. Inspect **every** commit in `"$remote_tip..HEAD"`,
+   not just HEAD or the net diff. An allowed record commit has exactly one parent, is nonempty,
+   and adds only timestamp-named `.md` files in this Notes directory's `records/`, with no other changed paths
+   (especially no `.scan-terms`). Check each commit with
+   `git diff-tree --no-commit-id --name-status -r "$oid"` and check its parent count. Refuse
+   committing or pushing if any outgoing commit fails this rule. Do not reset, amend, or hide it.
+3. Recover allowed unpushed commits too: validate each record's format/receipts and scan the full
+   blob **as committed**, not just the working-tree copy. Materialize `git show "$oid:$path"`
+   into a private temporary file, run the exact scanner above with that temporary `record_path`
+   and the same `scan_terms`, then remove the copy and restore `record_path`. Require the fixed safe
+   subject below on queued commits too; report other subjects without echoing them. Do not rewrite
+   them automatically.
+4. Run `git merge --ff-only "$remote_tip"` before making a new commit; preserve unrelated staged,
+   dirty, and untracked files. If it cannot fast-forward because of local edits, stop and report;
+   never auto-stash or discard changes. If histories diverge with only allowed, scanned record
+   commits ahead, first retry pushing those queued commits using the rejection recovery below;
+   make no new commit until they are synchronized and this fast-forward-only check succeeds.
+
+### Commit one scanned file and push
+
+After successful synchronization, recheck the default branch and the file's final contents:
+
+1. Stage **only the exact new/untracked file being processed** with `git add -- "$record_path"`,
+   never `git add -A`. Never stage `lessons.md`, the scan list, tracked records, or unrelated work.
+   Inspect `git diff --cached -- "$record_path"` against the scanned contents; any change requires
+   another full scan. Unrelated staged changes stay staged and must not enter this commit.
+2. Use only this fixed message, with the file's UTC timestamp and number of records substituted:
+   `git commit --only -m "Lesson records $timestamp ($count)" -- "$record_path"`.
+   Do not include finding text, project identifiers, or free-form descriptions in commit messages.
+3. Verify `git show --format= --name-only HEAD` lists **exactly** `"$record_path"`, and verify
+   the committed blob equals the scanned contents. On a mismatch, do not push, amend, or reset;
+   report that the commit needs attention. Recheck the entire outgoing range using the rules above
+   immediately before every push, including retries. Never push an unrelated commit.
+4. Push explicitly: `git push "$remote" "HEAD:refs/heads/$default"`. No lesson branch, PR,
+   force-push, or automatic rewriting of other work.
+
+**One rejection recovery per wrap-up:** if a push is rejected because the remote advanced, fetch
+again, capture its fresh tip, and recheck that **all** local outgoing commits are allowed, scanned
+record commits. Recheck the branch and require a clean index and tracked working tree; staged or
+tracked edits mean leave commits queued and report, without auto-stashing. Untracked files may
+remain only if Git can preserve them. Then allow **one**
+`git rebase "$remote_tip"` and retry the explicit push once, after checking the rewritten commits,
+paths, safe subjects, and full record blobs again. Abort this rebase on conflict with
+`git rebase --abort` and report; never resolve conflicts by dropping records or overwriting remote
+work. Other errors, a second rejection, or non-record commits stop automatic retry. The queued-commit
+recovery above uses this same one-rebase/one-retry budget.
+
+If discovery, writing, scanning, synchronization, commit, or push fails, report whether each
+pending file is uncommitted or committed but not pushed. Keep it for a later wrap-up retry; do not
+claim it was published. Carry unresolved stops into the step-3 resume note and repeat them
+prominently **immediately above the final clear line** in step 6, so they cannot be buried by the
+rest of the command. Include the dropped-for-no-receipt count there too. No failure in steps 1–2
+blocks the rest of `/wrap-up`.
 
 ## 3. Write a resume note for this project
 

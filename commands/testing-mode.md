@@ -6,8 +6,14 @@ argument-hint: on [path-to-lessons.md] | off | status
 Manage Claude Orchestrator testing mode. The argument given was: "$ARGUMENTS"
 
 Testing mode is controlled entirely by whether `~/.claude/orchestrator-testing.md` exists. When it
-exists, its first non-empty line is the absolute path to the `lessons.md` file that
-`/claude-orchestrator:wrap-up` appends findings to.
+exists, its first non-empty line is the absolute path to `lessons.md` in the Notes repo.
+`/claude-orchestrator:wrap-up` writes records with receipts (the evidence itself, anonymized) to
+`records/<YYYYMMDD-HHMMSS>.md` in that file's directory. Repeats become occurrence records;
+findings without receipts are not recorded. The configured `lessons.md` is not appended to.
+Use a **private, dedicated Notes repo**: after scanning, `/wrap-up` commits records and pushes
+**directly to its default branch**, without a lesson PR. This also applies to existing testing-mode
+configurations after an update. Before first use, create a private `records/.scan-terms` beside
+the records, with one client/project name per line; never publish its contents.
 
 Parse the argument as one of `on`, `off`, or `status` (default to `status` if empty or
 unrecognized):

@@ -52,8 +52,8 @@ function main() {
   if (fs.existsSync(TESTING_CONFIG)) {
     contextParts.push(
       'Claude Orchestrator testing mode is active (~/.claude/orchestrator-testing.md exists). ' +
-      'Capture friction/findings about the orchestrator plugin itself during this session, described ' +
-      'project-agnostically, and sweep them via /claude-orchestrator:wrap-up before your next /clear.'
+      'Capture findings about the orchestrator plugin itself with receipts (the evidence itself, anonymized), ' +
+      'described project-agnostically, and sweep them with /claude-orchestrator:wrap-up before your next /clear.'
     );
   }
 
