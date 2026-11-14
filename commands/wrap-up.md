@@ -14,10 +14,8 @@ Check whether `~/.claude/orchestrator-testing.md` exists.
 it is absolute and its parent directory exists; `lessons.md` itself need not exist. If the config
 is empty, invalid, or unreadable, report the problem and continue at step 3; don't invent a path.
 Call that parent directory the **Notes directory**; write `records/` beside the configured file.
-Find its containing **Notes repo** with `git -C "$notes_dir" rev-parse --show-toplevel`; the Notes
-directory need not be the git root. **Note its branch before writing anything** (including detached
-HEAD). If there is no git repo or remote, still write eligible records, skip committing, and report
-the saved files. Use a private, dedicated Notes repo: testing mode authorizes direct default-branch
+The step-2 script finds the repo, checks its branch and remote, and commits; you only write the
+record file. Use a private, dedicated Notes repo: testing mode authorizes direct default-branch
 pushes, including on existing installations; it does not open lesson PRs.
 
 Review this session for friction or successes specifically about the **Claude Orchestrator plugin
@@ -133,14 +131,14 @@ what_differs: Self caught the empty check before the final report.
 ## 2. File and recover pending records
 
 Write any eligible record file using section 1, then run this step even if no new file was written.
-Validate the format and receipts of earlier untracked timestamp-named records before filing them.
+If an earlier pending record lacks a real receipt, tell the user; do not delete or edit it.
 Do not adopt modifications to tracked records. Review the whole record for anonymization too:
 a clean heuristic scan cannot prove it is safe or that its receipt supports the claim.
 
 Run `node` with **the lesson-filing script path given in the session-start message**, quoted as
 one argument. If that message has no path, find `scripts/file-lesson-records.js` with the fallback
 glob `~/.claude/plugins/cache/claude-orchestrator/claude-orchestrator/*/scripts/file-lesson-records.js`.
-Select the installed version matching this session; if it is absent or ambiguous, report that stop.
+If several versions match, use the highest version directory; if none matches, report that stop.
 Do not use `${CLAUDE_PLUGIN_ROOT}` in this command file or reconstruct the filing procedure by hand.
 
 The script reads `~/.claude/orchestrator-testing.md` itself, resolves the Notes repo and its
@@ -163,6 +161,7 @@ Exit 0 means the reported operation succeeded; a nonzero exit means filing needs
 Ask the user only about lines you believe are false positives; show filenames and line numbers,
 never the matched private text. Resolve those lines safely and rerun; do not bypass the scanner.
 For an earlier pending file, report the flagged lines for correction. A failed scan cannot be waived.
+On `INVALID RECORD` for this session's own file, correct its format and rerun the script.
 A blocked untracked record does not prevent other clean records from filing; a blocked committed
 record prevents publishing the outgoing history containing it. Keep pending files for a later retry.
 

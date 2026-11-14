@@ -342,3 +342,29 @@ test('a non-timestamp Markdown file is reported, rather than silently skipped', 
   fs.writeFileSync(path.join(f.records, 'mistyped.md'), record());
   assert.match(f.run(8), /INVALID RECORD: .*mistyped.md/);
 });
+
+test('a failed commit unstages the record so the next run files it', t => {
+  const f = fixture(t);
+  const file = f.write();
+  const hooks = path.join(f.temp, 'hooks');
+  fs.mkdirSync(hooks);
+  fs.writeFileSync(path.join(hooks, 'pre-commit'), '#!/bin/sh\nexit 1\n');
+  fs.chmodSync(path.join(hooks, 'pre-commit'), 0o755);
+  f.git(f.local, 'config', 'core.hooksPath', hooks);
+  f.run(STOPS.commit[0]);
+  assert.equal(f.git(f.local, 'diff', '--cached', '--name-only'), '');
+  f.git(f.local, 'config', '--unset', 'core.hooksPath');
+  const output = f.run(0);
+  assert.match(output, /OK: record committed/);
+  assert.equal(f.git(f.local, 'ls-files', '--', file), file);
+  assert.equal(f.git(f.local, 'rev-parse', 'HEAD'), f.git(f.remote, 'rev-parse', 'main'));
+});
+
+test('a record left staged by an earlier run is rediscovered and filed', t => {
+  const f = fixture(t);
+  const file = f.write();
+  f.git(f.local, 'add', '--', file);
+  const output = f.run(0);
+  assert.match(output, /OK: record committed/);
+  assert.equal(f.git(f.local, 'rev-parse', 'HEAD'), f.git(f.remote, 'rev-parse', 'main'));
+});

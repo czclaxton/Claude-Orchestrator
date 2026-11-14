@@ -130,10 +130,12 @@ function run() {
   } catch (_) { stop('config'); }
   const records = path.join(notes, 'records');
   const gitEnv = { ...process.env, GIT_TERMINAL_PROMPT: '0', GIT_LITERAL_PATHSPECS: '1',
-    GIT_EDITOR: 'true', GIT_SEQUENCE_EDITOR: 'true', LC_ALL: 'C' };
+    GIT_EDITOR: 'true', GIT_SEQUENCE_EDITOR: 'true', GCM_INTERACTIVE: 'never', LC_ALL: 'C' };
   let root = notes;
   function git(args) {
-    const result = spawnSync('git', ['-C', root, ...args], { env: gitEnv, maxBuffer: 32 * 1024 * 1024 });
+    // A credential prompt or stalled network must not hold wrap-up: time out and stop instead.
+    const result = spawnSync('git', ['-C', root, ...args], { env: gitEnv, maxBuffer: 32 * 1024 * 1024,
+      timeout: 60 * 1000 });
     return { ok: !result.error && result.status === 0, bytes: result.stdout || Buffer.alloc(0) };
   }
   function must(args, reason = 'git') {
@@ -145,6 +147,11 @@ function run() {
   const prefix = path.relative(root, records).split(path.sep).join('/');
   if (prefix === '..' || prefix.startsWith('../') || path.isAbsolute(prefix)) stop('repo');
   const branchAtStart = must(['symbolic-ref', '--quiet', '--short', 'HEAD'], 'branch');
+  // A record left staged by an earlier failed commit is not "others": unstage it so it is found again.
+  const stagedNew = must(['diff', '--cached', '--name-only', '--diff-filter=A', '-z', '--', `${prefix}/`])
+    .split('\0').filter(file => path.posix.dirname(file) === prefix
+      && /^\d{8}-\d{6}\.md$/.test(path.posix.basename(file)));
+  for (const file of stagedNew) must(['reset', '-q', '--', file], 'commit');
   const listed = must(['ls-files', '--others', '--exclude-standard', '-z', '--', `${prefix}/`]);
   const pending = listed.split('\0').filter(file => path.posix.dirname(file) === prefix && file.endsWith('.md')).sort();
   const remotes = must(['remote'], 'remote').split('\n').filter(Boolean);
@@ -282,7 +289,11 @@ function run() {
     if (typeof result !== 'number') { pendingReason = pendingReason || result; continue; }
     const timestamp = path.posix.basename(file, '.md');
     must(['add', '--', file], 'commit');
-    must(['commit', '--only', '-m', `Lesson records ${timestamp} (${result})`, '--', file], 'commit');
+    if (!git(['commit', '--only', '-m', `Lesson records ${timestamp} (${result})`, '--', file]).ok) {
+      // Unstage so the next run rediscovers the record instead of silently skipping it.
+      git(['reset', '-q', '--', file]);
+      stop('commit');
+    }
     fileStatus('OK: record committed', file);
     const changed = must(['diff-tree', '--no-commit-id', '--name-only', '-r', '-z', 'HEAD']);
     if (changed !== `${file}\0`) stop('verify');
