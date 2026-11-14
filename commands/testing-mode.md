@@ -24,7 +24,10 @@ unrecognized):
   applied, and that changing it requires `off` then `on <new-path>`. If the file doesn't exist: if a
   path was given after `on` in the argument, use that. Otherwise, ask the user for the absolute path
   to their lessons.md file — **don't guess or invent one**. Once you have a path, create the file
-  with that single line using the Write tool.
+  with that single line using the Write tool. Then tell the user, in one line, that `/wrap-up` will
+  commit and push lesson records directly to that repo's default branch, so the repo should be
+  private and dedicated, and that a private `records/.scan-terms` list is recommended.
 - **`off`**: If `~/.claude/orchestrator-testing.md` exists, delete it and confirm. If it doesn't
   exist, report it's already off — don't treat this as an error.
-- **`status`**: Report whether the file exists and, if so, what path it currently points to.
+- **`status`**: Report whether the file exists and, if so, what path it currently points to, and
+  that `/wrap-up` pushes lesson records directly to that repo's default branch.

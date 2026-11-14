@@ -55,6 +55,10 @@ function main() {
       'Capture findings about the orchestrator plugin itself with receipts (the evidence itself, anonymized), ' +
       'described project-agnostically, and sweep them with /claude-orchestrator:wrap-up before your next /clear.'
     );
+    if (process.env.CLAUDE_PLUGIN_ROOT && path.isAbsolute(process.env.CLAUDE_PLUGIN_ROOT)) {
+      contextParts.push('Lesson-filing script path: ' +
+        JSON.stringify(path.join(process.env.CLAUDE_PLUGIN_ROOT, 'scripts', 'file-lesson-records.js')));
+    }
   }
 
   if (argSubtype === 'clear') {

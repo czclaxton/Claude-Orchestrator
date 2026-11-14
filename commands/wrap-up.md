@@ -130,168 +130,46 @@ caught_by: self
 what_differs: Self caught the empty check before the final report.
 ```
 
-## 2. Recover pending records, scan, commit, and push
+## 2. File and recover pending records
 
-Work in the **Notes repo**, never the current project's repo. At the start, discover earlier
-untracked `records/<YYYYMMDD-HHMMSS>.md` files beside the configured `lessons.md`, as well as the
-new file (if any). Validate their record format and receipts, and process each independently;
-do not adopt modifications to tracked records. Also discover unpushed record commits below.
-Do this even if step 1 wrote nothing. Skip only when there is no pending work.
+Write any eligible record file using section 1, then run this step even if no new file was written.
+Validate the format and receipts of earlier untracked timestamp-named records before filing them.
+Do not adopt modifications to tracked records. Review the whole record for anonymization too:
+a clean heuristic scan cannot prove it is safe or that its receipt supports the claim.
 
-For Git operations, work from the containing git root. Set `record_path` to the exact
-repository-relative path of the file being processed, and `scan_terms` to the repository-relative
-path of the Notes directory's `records/.scan-terms` (these may include a subdirectory prefix).
-If there is no repo, leave the files saved and report that committing was skipped.
+Run `node` with **the lesson-filing script path given in the session-start message**, quoted as
+one argument. If that message has no path, find `scripts/file-lesson-records.js` with the fallback
+glob `~/.claude/plugins/cache/claude-orchestrator/claude-orchestrator/*/scripts/file-lesson-records.js`.
+Select the installed version matching this session; if it is absent or ambiguous, report that stop.
+Do not use `${CLAUDE_PLUGIN_ROOT}` in this command file or reconstruct the filing procedure by hand.
 
-### Scan each file in full
+The script reads `~/.claude/orchestrator-testing.md` itself, resolves the Notes repo and its
+`records/.scan-terms`, recovers pending files and unpushed record commits, scans their contents,
+fetches the actual default branch, and files only eligible records with fixed commit messages.
+It checks every outgoing commit and scans the committed blobs before pushing. It permits one
+fetch, rebase, and push retry after a rejection when only eligible record commits are outgoing.
+It preserves unrelated staged and dirty work; those edits can prevent synchronization or retry.
+Never stage, commit, rebase, or push Notes records by hand, and never override a script stop.
 
-Before first use, ask the user to create the private `records/.scan-terms` beside their records,
-with one client/project name per line. Never invent its contents, print them, or add this list to
-the public plugin. An absent list skips only the term scan and must be reported as
-`term scan not run: no list`. Do not block the remaining secret/identifier scans on that absence.
+The private term list is `records/.scan-terms`, one client/project name per line; the user creates
+it. Never invent, print, or publish its contents. If it is absent, the script reports
+`term scan not run: no list` and the other secret, path, email, and UUID scans still run: relay that
+line in the final summary and continue. Do not stop or ask the user for the list during wrap-up.
+The script never prints a matched term or record text, only filenames and matching line numbers.
+Relay its status lines verbatim, including missing-list notices and every unresolved stop.
+Exit 0 means the reported operation succeeded; a nonzero exit means filing needs attention.
 
-Run this exact **Bash + Node** command after setting `record_path` and `scan_terms` as above.
-It reads UTF-8 and BOM-marked UTF-16 LE/BE, strips BOMs/CRs and surrounding term whitespace,
-reports the effective term count to stderr, and searches terms as case-insensitive literal
-substrings. A nonempty list yielding zero terms, invalid encoding, or any read error fails the
-scan. Stdout contains matching **line numbers only** (one per line); stderr contains only safe
-status messages. Exit codes: 0 = clean, 1 = hits, 2 = failed/incomplete scan.
+**On a hit in this session's own file, re-anonymize the flagged lines and rerun the script.**
+Ask the user only about lines you believe are false positives; show filenames and line numbers,
+never the matched private text. Resolve those lines safely and rerun; do not bypass the scanner.
+For an earlier pending file, report the flagged lines for correction. A failed scan cannot be waived.
+A blocked untracked record does not prevent other clean records from filing; a blocked committed
+record prevents publishing the outgoing history containing it. Keep pending files for a later retry.
 
-```bash
-node - "$record_path" "$scan_terms" <<'NODE'
-const fs = require('fs');
-const { TextDecoder } = require('util');
-function readText(path) {
-  const bytes = fs.readFileSync(path);
-  let encoding = 'utf-8';
-  if (bytes[0] === 0xff && bytes[1] === 0xfe) encoding = 'utf-16le';
-  if (bytes[0] === 0xfe && bytes[1] === 0xff) encoding = 'utf-16be';
-  const text = new TextDecoder(encoding, { fatal: true }).decode(bytes);
-  if (text.includes('\0')) throw new Error('encoding');
-  return { text: text.replace(/^\uFEFF/, ''), size: bytes.length };
-}
-try {
-  const [file, list] = process.argv.slice(2);
-  if (!file || !list) throw new Error('arguments');
-  const record = readText(file).text;
-  let terms = [];
-  try {
-    const source = readText(list);
-    terms = source.text.split(/\r\n|\n|\r/).map(s => s.replace(/\uFEFF/g, '').trim())
-      .filter(Boolean).map(s => s.toLowerCase());
-    if (source.size > 0 && terms.length === 0) throw new Error('empty terms');
-    console.error(`term count: ${terms.length}`);
-  } catch (error) {
-    if (error.code !== 'ENOENT') throw error;
-    console.error('term scan not run: no list');
-  }
-  const patterns = [
-    /\bsk-(?:[a-z]+-)?[a-z0-9_-]{12,}/i,
-    /\b(?:AKIA|ASIA)[A-Z0-9]{16}\b/i,
-    /\b(?:gh[pousr]_[a-z0-9]{20,}|github_pat_[a-z0-9_]{20,})/i,
-    /\b(?:xox[baprs]-[a-z0-9-]{10,}|AIza[a-z0-9_-]{30,})/i,
-    /-----BEGIN (?:[A-Z0-9]+ )*(?:PRIVATE KEY|PGP PRIVATE KEY BLOCK)-----/i,
-    /\b(?:api[_-]?key|access[_-]?token|token|secret|password)\b["']?\s*[:=]\s*["']?[a-z0-9_+/.=-]{16,}/i,
-    /\b[a-z][a-z0-9+.-]*:\/\/[^\s/:@\[\]]+:[^\s@/\[\]]+@/i,
-    /\b[A-Z]:[\\/][^\s<>"'`]+/i,
-    /\\\\[^\s\\]+\\[^\s]+/,
-    /(?:^|[\s("'`=])(?:~\/|\/(?!\/))[a-z0-9_.~-]+(?:\/[^\s<>"'`]*)?/i,
-    /\b[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}\b/i,
-    /\b[a-z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-z0-9-]+(?:\.[a-z0-9-]+)+\b/i
-  ];
-  const hits = [];
-  record.split(/\r\n|\n|\r/).forEach((line, index) => {
-    const lower = line.toLowerCase();
-    if (terms.some(term => lower.includes(term)) || patterns.some(p => p.test(line))) {
-      hits.push(index + 1);
-    }
-  });
-  for (const line of hits) console.log(line);
-  console.error(hits.length ? 'scan stopped: flagged lines' : 'scan clean');
-  process.exitCode = hits.length ? 1 : 0;
-} catch (_) {
-  console.error('scan failed: unreadable input, invalid encoding, or unusable term list');
-  process.exitCode = 2;
-}
-NODE
-```
-
-This also flags common API keys, private-key headers, credential assignments and URL passwords,
-absolute paths (including home-relative paths), UUID-shaped IDs, and email addresses. Placeholders
-such as `[path]` and `[secret]` are not credentials. This heuristic can miss unusual secrets,
-identifiers, split tokens, and names absent from the list, and can flag innocent text. Manually
-review anonymization and the whole receipt too; a clean scan is not proof that publication is safe.
-
-**On any hit: stop that file's automatic commit/push.** Show only its matching line numbers and
-ask the user to resolve them. Leave it in place and continue other safe work and steps 3 onward
-without waiting. Only an explicit **yes for the specific flagged lines** can authorize retaining
-a false positive; no response is not approval. Actual secrets/private identifiers must be removed.
-A failed/incomplete scan cannot be waived. After any edit or on a later retry, scan the full final
-contents again; never silently override a hit. A blocked untracked file does not stop a clean file;
-a blocked committed record stops pushing every commit that would publish it.
-
-### Synchronize and guard the outgoing history
-
-1. Determine the intended remote and its actual default branch with
-   `git ls-remote --symref "$remote" HEAD` (use `origin` only if it is the intended remote;
-   stop if ambiguous). Do not assume a branch name or trust a cached default ref. If discovery
-   fails, leave files uncommitted and report why. **If the repo was not on this default branch
-   in step 1, or is no longer on it**, leave files in place; report the unexpected branch or
-   detached HEAD. Do not switch branches or create a worktree.
-2. Fetch before committing: `git fetch "$remote" "refs/heads/$default"`, then capture
-   `remote_tip=$(git rev-parse FETCH_HEAD)`. Inspect **every** commit in `"$remote_tip..HEAD"`,
-   not just HEAD or the net diff. An allowed record commit has exactly one parent, is nonempty,
-   and adds only timestamp-named `.md` files in this Notes directory's `records/`, with no other changed paths
-   (especially no `.scan-terms`). Check each commit with
-   `git diff-tree --no-commit-id --name-status -r "$oid"` and check its parent count. Refuse
-   committing or pushing if any outgoing commit fails this rule. Do not reset, amend, or hide it.
-3. Recover allowed unpushed commits too: validate each record's format/receipts and scan the full
-   blob **as committed**, not just the working-tree copy. Materialize `git show "$oid:$path"`
-   into a private temporary file, run the exact scanner above with that temporary `record_path`
-   and the same `scan_terms`, then remove the copy and restore `record_path`. Require the fixed safe
-   subject below on queued commits too; report other subjects without echoing them. Do not rewrite
-   them automatically.
-4. Run `git merge --ff-only "$remote_tip"` before making a new commit; preserve unrelated staged,
-   dirty, and untracked files. If it cannot fast-forward because of local edits, stop and report;
-   never auto-stash or discard changes. If histories diverge with only allowed, scanned record
-   commits ahead, first retry pushing those queued commits using the rejection recovery below;
-   make no new commit until they are synchronized and this fast-forward-only check succeeds.
-
-### Commit one scanned file and push
-
-After successful synchronization, recheck the default branch and the file's final contents:
-
-1. Stage **only the exact new/untracked file being processed** with `git add -- "$record_path"`,
-   never `git add -A`. Never stage `lessons.md`, the scan list, tracked records, or unrelated work.
-   Inspect `git diff --cached -- "$record_path"` against the scanned contents; any change requires
-   another full scan. Unrelated staged changes stay staged and must not enter this commit.
-2. Use only this fixed message, with the file's UTC timestamp and number of records substituted:
-   `git commit --only -m "Lesson records $timestamp ($count)" -- "$record_path"`.
-   Do not include finding text, project identifiers, or free-form descriptions in commit messages.
-3. Verify `git show --format= --name-only HEAD` lists **exactly** `"$record_path"`, and verify
-   the committed blob equals the scanned contents. On a mismatch, do not push, amend, or reset;
-   report that the commit needs attention. Recheck the entire outgoing range using the rules above
-   immediately before every push, including retries. Never push an unrelated commit.
-4. Push explicitly: `git push "$remote" "HEAD:refs/heads/$default"`. No lesson branch, PR,
-   force-push, or automatic rewriting of other work.
-
-**One rejection recovery per wrap-up:** if a push is rejected because the remote advanced, fetch
-again, capture its fresh tip, and recheck that **all** local outgoing commits are allowed, scanned
-record commits. Recheck the branch and require a clean index and tracked working tree; staged or
-tracked edits mean leave commits queued and report, without auto-stashing. Untracked files may
-remain only if Git can preserve them. Then allow **one**
-`git rebase "$remote_tip"` and retry the explicit push once, after checking the rewritten commits,
-paths, safe subjects, and full record blobs again. Abort this rebase on conflict with
-`git rebase --abort` and report; never resolve conflicts by dropping records or overwriting remote
-work. Other errors, a second rejection, or non-record commits stop automatic retry. The queued-commit
-recovery above uses this same one-rebase/one-retry budget.
-
-If discovery, writing, scanning, synchronization, commit, or push fails, report whether each
-pending file is uncommitted or committed but not pushed. Keep it for a later wrap-up retry; do not
-claim it was published. Carry unresolved stops into the step-3 resume note and repeat them
-prominently **immediately above the final clear line** in step 6, so they cannot be buried by the
-rest of the command. Include the dropped-for-no-receipt count there too. No failure in steps 1–2
-blocks the rest of `/wrap-up`.
+Report whether stopped work is uncommitted or committed but not pushed; never claim it was filed.
+Keep unresolved stops in the wrap-up reply, **immediately above the final clear line** in step 6,
+together with the dropped-for-no-safe-receipt count (including zero).
+No failure in steps 1-2 blocks step 3 or later steps.
 
 ## 3. Write a resume note for this project
 
