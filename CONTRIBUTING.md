@@ -73,14 +73,15 @@ and run the validator against `./agents` before every version bump, because noth
 
 ## 4. Two repos, two different jobs — and only one of them is the user's
 
-The notes repo and the plugin repo carry different kinds of PR, and confusing them is what stalled
-this loop for weeks.
+The Notes repo collects evidence; plugin-repo PRs propose behavior changes.
 
-**Notes-repo PRs are filing, not judgment, and the user is not their gate.** When testing mode is on,
-`/claude-orchestrator:wrap-up` opens a small PR there for each fragment it writes. Merging one moves
-the fragment onto that repo's default branch and nothing else — it lands in `pending-lessons/`, never
-in `lessons.md`, so no doctrine is accepted, no behaviour changes, and nothing ships. The orchestrator
-merges these as bookkeeping.
+**Notes records are filing, not judgment.** When testing mode is on,
+`/claude-orchestrator:wrap-up` writes anonymized records with receipts to `records/` beside the
+configured `lessons.md`, scans them, then commits and pushes directly to the Notes repo's default
+branch. There is no lesson PR. Use a private, dedicated Notes repo; this direct-push contract also
+applies to existing testing-mode configurations after updating. `lessons.md` and legacy
+`pending-lessons/` fragments remain unchanged. Filing a record accepts no doctrine and ships no
+plugin behavior.
 
 **Plugin-repo PRs are where the user decides.** A change to a command, an agent, a skill or the README
 alters what every install does. That is the gate, and it is the only one.
@@ -90,12 +91,12 @@ version bump. It never once ran: twenty-three sat open, the oldest six days, acr
 in a single day. A checkpoint that has never fired is not a checkpoint — it is a queue with a person
 standing in it.
 
-**The safeguard that replaces it.** A user who never reads the fragments only ever sees the
+**The safeguard that replaces it.** A user who never reads the records only ever sees the
 orchestrator's consolidation of them, and the orchestrator is the compression step. This project has
 already logged an instance of a correct finding being degraded into a false claim one hop downstream
-while being summarised. So: **a plugin PR built from fragments must name the fragments it consumed**,
-by filename, in its collapsed detail block. That makes spot-checking cheap without making approval a
-gate — the user opens one when a claim looks off, rather than reading all of them to find out.
+while being summarised. So: **a plugin PR built from records must name the records it consumed**,
+by stable record ID and filename, in its collapsed detail block (name legacy fragments by filename
+if used). That makes receipts cheap to spot-check without requiring a review of every filed record.
 
 ## 5. The human is a component of this system, not a gate on it
 
@@ -150,7 +151,7 @@ Prefix the PR title with the bucket so it is visible in the list view without op
 ## 7. PR format: defined in one place, the `pr-format` skill
 
 The format lives in `skills/pr-format/SKILL.md` and nowhere else. That file is the only definition;
-this section is a pointer, and `commands/wrap-up.md` names the skill rather than restating it.
+this section is a pointer for plugin PRs. `/wrap-up` files Notes records directly and needs no PR body.
 
 That arrangement is deliberate and was bought with a real failure. The format used to be written
 here and paraphrased separately inside `/wrap-up`, and the two drifted: this section asked for a

@@ -8,67 +8,167 @@ Prepare this session to be cleared. Do the following, in order.
 
 Check whether `~/.claude/orchestrator-testing.md` exists.
 
-**If it exists:** its first non-empty line is the absolute path to `lessons.md` in the private
-Claude-Orchestrator-Notes repo. **Note which branch that repo is on before you write anything** —
-it decides how step 2 proceeds. Review this session for friction or successes specifically about
-the **Claude Orchestrator plugin itself** (routing decisions, agent behavior, spec quality —
-not the substance of whatever project you were actually working in). Apply the same promotion bar
-already used in `lessons.md`: only log something that recurred, or was notable/severe enough to
-justify logging alone. Don't log routine, uneventful use.
-
-**Write your entries to a new file, not to `lessons.md`.** Create
-`pending-lessons/<YYYYMMDD-HHMMSS>-<short-kebab-slug-from-the-entry-heading>.md` alongside
-`lessons.md` in that repo, holding this session's entries in the same format `lessons.md` uses.
-Create the `pending-lessons/` directory if it does not exist.
-
-A separate file per sweep is the whole point. Every sweep used to append to the tail of one shared
-file, so every open PR conflicted with the last and none of them ever merged — fourteen of them, at
-one point, none merged in three weeks. Distinct files never collide, so these merge in any order.
-A later review session folds the pending entries into `lessons.md` with a status on each and
-deletes them; that collection step is where the reading happens, and the directory being non-empty
-is what says it is due.
-
-Two rules for the entries themselves, non-negotiable:
-- **Describe the orchestrator's behavior only, project-agnostically.** Never quote actual project
-  code, file paths, identifiers, or business logic from the project you were working in — that's
-  the real leak-prevention mechanism, not where the file happens to live.
-- Mark each entry **verified** (you re-ran or re-checked the thing) or **asserted** (you're
-  reporting an impression without re-checking) — this is the load-bearing field, more important
-  than which project it came from.
-
 **If it doesn't exist:** skip this step entirely. Testing mode is off; there's nothing to sweep.
 
-## 2. Open a PR for the pending-lessons file, if you wrote one
+**If it exists:** its first non-empty line is the absolute path to `lessons.md`. It is valid if
+it is absolute and its parent directory exists; `lessons.md` itself need not exist. If the config
+is empty, invalid, or unreadable, report the problem and continue at step 3; don't invent a path.
+Call that parent directory the **Notes directory**; write `records/` beside the configured file.
+The step-2 script finds the repo, checks its branch and remote, and commits; you only write the
+record file. Use a private, dedicated Notes repo: testing mode authorizes direct default-branch
+pushes, including on existing installations; it does not open lesson PRs.
 
-Only do this if step 1 actually wrote a fragment — skip entirely if testing mode was off or nothing
-cleared the promotion bar.
+Review this session for friction or successes specifically about the **Claude Orchestrator plugin
+itself** (routing decisions, agent behavior, spec quality). Describe the orchestrator's behavior,
+project-agnostically; omit the project's substance, identifiers, and business logic. Only log
+something that recurred, or was notable/severe enough to justify logging alone. Don't log routine,
+uneventful use.
 
-**A new file cannot conflict with anything, so there is no dirty-tree check here.** The file you are
-committing did not exist a moment ago: no other session has edited it, no other branch touches it,
-and staging it by path cannot pick up anything else. Other dirty or untracked files in that repo are
-irrelevant and never a reason to abort.
+### Receipts and anonymization
 
-**If the repo is not on its default branch:** don't create a branch or open a PR. Leave the fragment
-in place and tell the user plainly that an unexpected branch stopped you — only a human can say
-where that work belongs.
+**No receipt, no record.** Each finding needs evidence a later reader can use to confirm the claim:
 
-**Otherwise:** in the Claude-Orchestrator-Notes repo (not this one), note its current branch first
-so you can switch back at the end. Then:
+- The exact command or action and the output showing the result, excerpted and anonymized.
+- Before/after artifact text, or a quoted line with an explanation of what was wrong.
+- Counts together with how they were counted.
+- A persistent public source (URL or public-repo commit), with what it shows.
 
-1. Create a new branch off its default branch, named `lessons/<same-timestamp-and-slug-as-the-file>`.
-2. Stage and commit **only the one file you wrote** — never `git add -A`, and never touch
-   `lessons.md`. Write a plain commit message describing what was logged.
-3. Push the branch and open a PR against the repo's default branch (`gh pr create`). **Write the PR
-   body using the `pr-format` skill** — use its lessons-entry variant. That skill is the only
-   definition of this project's PR format; do not restate or summarize it here.
-4. Switch back to whatever branch the repo was on before step 1.
+Embed the evidence itself or the persistent public source in `receipt`. Saying "verified",
+"confirmed", or "I checked" is not evidence. A session ID, private link, or local log pointer
+is not a receipt. If evidence cannot be retained safely, skip the finding. Count findings dropped
+for lack of a safe receipt and report that count (including zero) in the wrap-up reply.
 
-**Do not merge this PR now.** Merging a fragment PR is filing, not judgment — it moves the file onto
-the default branch, still pending, still unread. The judgment happens at a review session, over the
-`pending-lessons/` directory.
+Anonymize the whole record, including receipts and prose, while keeping the mechanism visible:
+project names → `[project]`; client/company names → `[client]`; people → their role (e.g.
+`[developer]` or `[user]`); file paths → `[path]/<basename>` only when the basename matters and is
+safe, otherwise `[path]`; private-system URLs → `[private-url]`. Include no session IDs, actual
+project paths, or secrets. Keep command and code shapes only as minimal anonymized excerpts needed
+to show the orchestrator's behavior; do not copy project code or substance. Public-source URLs may
+remain only if they disclose no private context.
 
-If branch creation, commit, push, or PR creation fails for any reason, report it plainly and move
-on — don't let it block the rest of this command.
+### Record format
+
+Search existing `records/` first, using headings and `class`, and read likely matches for the same
+mechanism. Also consult legacy `pending-lessons/` fragments and `lessons.md` where relevant; leave
+them unchanged. A repeat with nothing new is an `occurrence`, linked to the earlier ID or legacy
+fragment filename. A finding with new information is `new`; link a related earlier record when
+applicable, otherwise use `recurrence_of: none`. Each repeat still needs its own receipt.
+
+If no finding clears the bar with a safe receipt, write no new file; still run step 2 to recover
+earlier pending records. Otherwise, write one new `records/<YYYYMMDD-HHMMSS>.md` per wrap-up,
+containing one or more records. Use **UTC** for the filename timestamp and each record's date;
+the timestamp in every ID must equal its containing file's timestamp. Create
+`records/` if needed; never overwrite an existing file (choose a fresh timestamp on collision).
+Use a short, generic level-four Markdown heading (`####`) per record, then a fenced YAML block
+followed by at most five lines of prose: what happened, what it cost, what would have prevented it.
+Never append to `lessons.md`. The fields for a `new` record are:
+
+| Field | Value / rule |
+|---|---|
+| `id`, `date`, `kind` | `L-<YYYYMMDD-HHMMSS>-<n>` (stable, never reused; n starts at 1), `YYYY-MM-DD`, `new` or `occurrence` |
+| `recurrence_of` | Earlier record ID, legacy fragment filename, or `none` |
+| `class` | One class from the fixed list below, or `other: <name>` (quote this YAML value) |
+| `polarity`, `severity` | `failure` / `success`; `low` / `medium` / `high` (high = wrong result reached the user, or work lost) |
+| `caught_by` | `user` / `reviewer` / `cross-family` / `self` / `check` / `luck` / `not-caught` |
+| `cost` | Rough minutes or rework rounds |
+| `engines` | Quoted comma-separated string of `provider-model (effort)` entries, e.g. `"provider-model (high), provider-model (unknown)"`; `unknown` if unavailable |
+| `module` | The v2 module this informs: `Interviewer`, `Planner`, `Orchestrator`, `Router`, `Workers`, `Reviewer`, `Scribe`, `Maintenance`, `Auditor`, `Human`, `Docs`, `Other`; use `Other` if unsure |
+| `receipt` | Required evidence as above; use a YAML block scalar for multiline excerpts |
+| `refutes`, `refuted_by` | Earlier/later record ID, or `none`; link claims shown false |
+
+An **`occurrence`** contains only `id`, `date`, `kind: occurrence`, `recurrence_of`, `receipt`,
+`caught_by`, and one-line `what_differs` (`nothing` is allowed). Do not repeat the full narrative.
+For a refutation, the new record's `refutes` is authoritative. Set the earlier record's
+`refuted_by` too if it is in this same new file; otherwise report its ID for the periodic audit
+to fill in the backlink. Do not edit or stage older files in this sweep. A missing `refuted_by`
+backlink does not invalidate a refutation.
+
+Fixed classes: `false-success` (exit 0 / empty / inert check), `brief-carries-false-fact`,
+`report-overclaims`, `handoff-lost-or-wrong`, `scope-or-permission-mismatch`, `routing-wrong-lane`,
+`review-missed-defect`, `review-caught-defect`, `stale-state-or-fact`, `concurrency-conflict`,
+`tooling-or-harness-fault`, `user-correction`, plus `other: <name>`. Only a periodic audit extends
+the fixed list.
+
+Two invented, generic examples from separate files: the first in `records/20260102-100000.md`,
+the occurrence in `records/20260103-110000.md` refers to it:
+
+#### Empty check reported as a pass
+
+```yaml
+id: L-20260102-100000-1
+date: 2026-01-02
+kind: new
+recurrence_of: none
+class: false-success
+polarity: failure
+severity: medium
+caught_by: reviewer
+cost: 5 minutes
+engines: unknown
+module: Reviewer
+receipt: |
+  Command: check-runner --path [path]
+  Output: "0 tests collected; exit 0". Report: "All tests passed."
+refutes: none
+refuted_by: none
+```
+The orchestrator treated an empty check as proof. Rework took five minutes; require a test count.
+
+#### Empty check repeated
+
+```yaml
+id: L-20260103-110000-1
+date: 2026-01-03
+kind: occurrence
+recurrence_of: L-20260102-100000-1
+receipt: |
+  Command: check-runner --path [path]
+  Output: "0 tests collected; exit 0". Report: "All tests passed."
+caught_by: self
+what_differs: Self caught the empty check before the final report.
+```
+
+## 2. File and recover pending records
+
+Write any eligible record file using section 1, then run this step even if no new file was written.
+If an earlier pending record lacks a real receipt, tell the user; do not delete or edit it.
+Do not adopt modifications to tracked records. Review the whole record for anonymization too:
+a clean heuristic scan cannot prove it is safe or that its receipt supports the claim.
+
+Run `node` with **the lesson-filing script path given in the session-start message**, quoted as
+one argument. If that message has no path, find `scripts/file-lesson-records.js` with the fallback
+glob `~/.claude/plugins/cache/claude-orchestrator/claude-orchestrator/*/scripts/file-lesson-records.js`.
+If several versions match, use the highest version directory; if none matches, report that stop.
+Do not use `${CLAUDE_PLUGIN_ROOT}` in this command file or reconstruct the filing procedure by hand.
+
+The script reads `~/.claude/orchestrator-testing.md` itself, resolves the Notes repo and its
+`records/.scan-terms`, recovers pending files and unpushed record commits, scans their contents,
+fetches the actual default branch, and files only eligible records with fixed commit messages.
+It checks every outgoing commit and scans the committed blobs before pushing. It permits one
+fetch, rebase, and push retry after a rejection when only eligible record commits are outgoing.
+It preserves unrelated staged and dirty work; those edits can prevent synchronization or retry.
+Never stage, commit, rebase, or push Notes records by hand, and never override a script stop.
+
+The private term list is `records/.scan-terms`, one client/project name per line; the user creates
+it. Never invent, print, or publish its contents. If it is absent, the script reports
+`term scan not run: no list` and the other secret, path, email, and UUID scans still run: relay that
+line in the final summary and continue. Do not stop or ask the user for the list during wrap-up.
+The script never prints a matched term or record text, only filenames and matching line numbers.
+Relay its status lines verbatim, including missing-list notices and every unresolved stop.
+Exit 0 means the reported operation succeeded; a nonzero exit means filing needs attention.
+
+**On a hit in this session's own file, re-anonymize the flagged lines and rerun the script.**
+Ask the user only about lines you believe are false positives; show filenames and line numbers,
+never the matched private text. Resolve those lines safely and rerun; do not bypass the scanner.
+For an earlier pending file, report the flagged lines for correction. A failed scan cannot be waived.
+On `INVALID RECORD` for this session's own file, correct its format and rerun the script.
+A blocked untracked record does not prevent other clean records from filing; a blocked committed
+record prevents publishing the outgoing history containing it. Keep pending files for a later retry.
+
+Report whether stopped work is uncommitted or committed but not pushed; never claim it was filed.
+Keep unresolved stops in the wrap-up reply, **immediately above the final clear line** in step 6,
+together with the dropped-for-no-safe-receipt count (including zero).
+No failure in steps 1-2 blocks step 3 or later steps.
 
 ## 3. Write a resume note for this project
 

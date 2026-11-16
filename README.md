@@ -102,9 +102,13 @@ nothing can intercept `/clear` before it happens. `/wrap-up` is the one manual h
 asks of you.
 
 **Testing mode** (opt-in, off by default): `/claude-orchestrator:testing-mode on`, `off`, or
-`status`. This just manages a one-line file at `~/.claude/orchestrator-testing.md` — the absolute
-path to a markdown file where you want plugin friction/notes logged as you use it — so you can also
-create or delete that file by hand if you prefer.
+`status`. This manages a one-line file at `~/.claude/orchestrator-testing.md`: the absolute path to
+`lessons.md` in your Notes directory. Use a **private, dedicated Notes repo**. `/wrap-up` writes
+anonymized records with receipts to `records/<YYYYMMDD-HHMMSS>.md` beside that file, scans them,
+then commits and **pushes directly to the repo's default branch**; it does not open lesson PRs or
+append to `lessons.md`. This applies to existing testing-mode configurations after updating too.
+Before first use, create a private `records/.scan-terms` with one client/project name per line for
+the local scan; never publish that list. You can create or delete the config file by hand.
 
 ## Commitment boundaries and the final review
 

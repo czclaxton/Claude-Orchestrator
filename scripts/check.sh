@@ -289,6 +289,18 @@ PYEOF
 fi
 [ "$hook_ok" -eq 1 ] && pass "hooks/*.js parse and every \${CLAUDE_PLUGIN_ROOT} target exists"
 
+# -------------------------------------------------------- 8. lesson record filing
+head_ "8. lesson filing scanner and offline Git recovery"
+if ! command -v node >/dev/null 2>&1; then
+  fail "node not on PATH - lesson filing tests require Node"
+elif lesson_out="$(node --test scripts/file-lesson-records.test.js 2>&1)"; then
+  pass "lesson filing scanner and offline Git recovery tests passed"
+  printf '%s\n' "$lesson_out" | tail -8 | sed 's/^/        /'
+else
+  fail "lesson filing tests failed:"
+  printf '%s\n' "$lesson_out" | sed 's/^/        /'
+fi
+
 # --------------------------------------------------------------------- summary
 printf '\n----------------------------------------\n'
 if [ "$FAILED" -eq 0 ]; then
